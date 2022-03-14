@@ -1,19 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { Box, VStack, Button, useToast, Input } from "@chakra-ui/react";
-import MetaMaskOnboarding from "@metamask/onboarding";
 import { Auth } from "aws-amplify";
 import { showErrorToast } from "./utils";
 
 const SignIn = ({ fetchAuthState }) => {
   const toast = useToast();
-  const onboarding = useRef(null);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (!onboarding.current) {
-      onboarding.current = new MetaMaskOnboarding();
-    }
-  }, []);
 
   const onSignIn = async () => {
     try {
