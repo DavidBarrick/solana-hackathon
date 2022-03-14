@@ -1,0 +1,70 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: kyd-cognito-triggers
+
+custom:
+  USER_POOL_NAME: ${cf:kyd-resources-${self:provider.stage}.UserPoolName}
+  SECRETS: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
+
+configValidationMode: error
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  memorySize: 1024
+  timeout: 30
+  tracing:
+    lambda: true
+  iam:
+    role:
+      name: ${self:service}-${self:provider.stage}-role
+      statements:
+        - Effect: Allow
+          Action:
+            - sns:*
+          Resource:
+            - "*"
+
+functions:
+  createAuthChallenge:
+    handler: tasks/createAuthChallenge.handler
+    environment:
+      ORIGINATION_NUMBER: ${self:custom.SECRETS.ORIGINATION_NUMBER}
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.USER_POOL_NAME}
+          trigger: CreateAuthChallenge
+          existing: true
+  defineAuthChallenge:
+    handler: tasks/defineAuthChallenge.handler
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.USER_POOL_NAME}
+          trigger: DefineAuthChallenge
+          existing: true
+  preSignUp:
+    handler: tasks/preSignUp.handler
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.USER_POOL_NAME}
+          trigger: PreSignUp
+          existing: true
+  verifyAuthChallenge:
+    handler: tasks/verifyAuthChallenge.handler
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.USER_POOL_NAME}
+          trigger: VerifyAuthChallengeResponse
+          existing: true

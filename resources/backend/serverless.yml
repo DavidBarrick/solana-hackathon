@@ -1,0 +1,123 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: kyd-resources
+
+configValidationMode: error
+
+custom:
+  SECRETS: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
+  USER_POOL_NAME: kyd-UserPool-${self:provider.stage}
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+
+resources:
+  Resources:
+    DynamoTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+          - AttributeName: data
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: "sk-data-index"
+            Projection:
+              ProjectionType: ALL
+            KeySchema:
+              - AttributeName: sk
+                KeyType: HASH
+              - AttributeName: data
+                KeyType: RANGE
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: false
+        UserPoolName: ${self:custom.USER_POOL_NAME}
+        UsernameConfiguration:
+          CaseSensitive: false
+        #EmailConfiguration:
+        #  EmailSendingAccount: DEVELOPER
+        #  From: ${self:custom.SECRETS.SES_FROM_EMAIL}
+        #  SourceArn: ${self:custom.SECRETS.SES_FROM_ARN}
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: false
+            RequireNumbers: false
+            RequireSymbols: false
+            RequireUppercase: false
+        UsernameAttributes:
+          - phone_number
+    UserPoolWebClient:
+      Type: AWS::Cognito::UserPoolClient
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        ClientName: UserPoolWebClient-${self:provider.stage}
+        GenerateSecret: false
+        UserPoolId: !Ref UserPool
+        ExplicitAuthFlows:
+          - ALLOW_REFRESH_TOKEN_AUTH
+          - ALLOW_CUSTOM_AUTH
+        PreventUserExistenceErrors: ENABLED
+
+  Outputs:
+    DynamoTable:
+      Value:
+        Ref: DynamoTable
+      Export:
+        Name: DynamoTable-${self:provider.stage}
+    DynamoTableArn:
+      Value:
+        Fn::GetAtt: [DynamoTable, Arn]
+      Export:
+        Name: DynamoTable-Arn-${self:provider.stage}
+    UserPoolId:
+      Value:
+        Ref: UserPool
+      Export:
+        Name: UserPool-${self:provider.stage}
+    UserPoolArn:
+      Value:
+        Fn::GetAtt: [UserPool, Arn]
+      Export:
+        Name: UserPool-Arn-${self:provider.stage}
+    UserPoolName:
+      Value: ${self:custom.USER_POOL_NAME}
+      Export:
+        Name: UserPool-Name-${self:provider.stage}
+    UserPoolWebClient:
+      Value:
+        Ref: UserPoolWebClient
+      Export:
+        Name: UserPool-Web-Client-${self:provider.stage}
