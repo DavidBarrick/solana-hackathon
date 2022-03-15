@@ -1,0 +1,29 @@
+{
+  "name": "KYD Launch Party #69",
+  "symbol": "KYDNYC",
+  "description": "The greatest party on earth",
+  "seller_fee_basis_points": 1000,
+  "image": "69.png",
+  "edition": 69,
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Base"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "69.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "5tMWkVwy8UrRBaXFYgPTVzLxD4VdctXVnqtcaxLGsziK",
+        "share": 100
+      }
+    ]
+  }
+}

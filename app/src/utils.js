@@ -21,6 +21,13 @@ const TIME_ZONES = {
   PDT: "Pacific",
 };
 
+const AUTH_STATES = {
+  LOADING: "loading",
+  AUTHENTICATED: "authenticated",
+  NEEDS_AUTH: "needs_auth",
+  ONBOARDING: "onboarding",
+};
+
 const showErrorToast = (toast, message) => {
   toast({
     title: "Woops!",
@@ -222,4 +229,5 @@ export {
   isiOSDevice,
   isMobileChrome,
   shortAddress,
+  AUTH_STATES,
 };

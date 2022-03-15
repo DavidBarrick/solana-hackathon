@@ -14,48 +14,7 @@ const fetchProfile = async () => {
   }
 };
 
-const updateIntro = async (user_id, intro_id, data = {}) => {
-  const params = {
-    queryStringParameters: fetchQueryParams(),
-    body: data,
-  };
-
-  try {
-    const { result = {} } = await API.put(
-      "KYD_API",
-      `/users/${user_id}/intros/${intro_id}`,
-      params
-    );
-    return result;
-  } catch (err) {
-    const errData = err.response ? err.response.data : err;
-    throw errData;
-  }
-};
-
-const updateCandidate = async (candidate_id, action, data) => {
-  const params = {
-    queryStringParameters: fetchQueryParams(),
-    body: {
-      action,
-      data,
-    },
-  };
-
-  try {
-    const { result = {} } = await API.put(
-      "KYD_API",
-      `/candidates/${candidate_id}`,
-      params
-    );
-    return result;
-  } catch (err) {
-    const errData = err.response ? err.response.data : err;
-    throw errData;
-  }
-};
-
-const createIntro = async (candidate_id) => {
+const createPurchase = async (event_id) => {
   const params = {
     queryStringParameters: fetchQueryParams(),
   };
@@ -63,7 +22,7 @@ const createIntro = async (candidate_id) => {
   try {
     const { result = {} } = await API.post(
       "KYD_API",
-      `/candidates/${candidate_id}/intros`,
+      `/events/${event_id}/purchase`,
       params
     );
     return result;
@@ -87,9 +46,7 @@ const fetchQueryParams = () => {
 
 const actions = {
   fetchProfile,
-  createIntro,
-  updateIntro,
-  updateCandidate,
+  createPurchase,
 };
 
 export default actions;

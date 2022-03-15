@@ -1,0 +1,76 @@
+service: kyd-api
+
+custom:
+  S3_BUCKET: ${cf:kyd-resources-${self:provider.stage}.S3Bucket}
+  USER_POOL_ARN: ${cf:kyd-resources-${self:provider.stage}.UserPoolArn}
+  secrets: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${opt:stage, 'dev'}
+  lambdaHashingVersion: "20201221"
+  apiGateway:
+    apiKeys:
+      - KYD-API-${opt:stage, 'dev'}
+  memorySize: 1024 # optional, in MB, default is 1024
+  timeout: 30
+  environment:
+    S3_BUCKET: ${self:custom.S3_BUCKET}
+    CANDY_MACHINE_ID: ${self:custom.secrets.CANDY_MACHINE_ID}
+    RPC_HOST: ${self:custom.secrets.RPC_HOST}
+  tracing:
+    lambda: true
+  iam:
+    role:
+      name: ${self:service}-${self:provider.stage}-role
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:getObject
+          Resource:
+            - arn:aws:s3:::${self:custom.S3_BUCKET}/*
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminGetUser
+          Resource:
+            - ${self:custom.USER_POOL_ARN}
+        - Effect: Allow
+          Action:
+            - sns:*
+          Resource:
+            - "*"
+
+functions:
+  fetchProfile:
+    handler: tasks/fetchProfile.handler
+    events:
+      - http:
+          path: profile
+          method: get
+          private: true
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${self:custom.USER_POOL_ARN}
+  createPurchase:
+    handler: tasks/createPurchase.handler
+    environment:
+      STRIPE_SK: ${self:custom.secrets.STRIPE_SK}
+    events:
+      - http:
+          path: events/{event_id}/purchase
+          method: post
+          private: true
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${self:custom.USER_POOL_ARN}
+  processWebhook:
+    handler: tasks/processWebhook.handler
+    environment:
+      STRIPE_SK: ${self:custom.secrets.STRIPE_SK}
+    events:
+      - http:
+          path: webhooks/stripe
+          method: post

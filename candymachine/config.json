@@ -1,0 +1,19 @@
+{
+    "price": 0.1,
+    "number": 100,
+    "gatekeeper": null,
+    "solTreasuryAccount": "5tMWkVwy8UrRBaXFYgPTVzLxD4VdctXVnqtcaxLGsziK",
+    "splTokenAccount": null,
+    "splToken": null,
+    "goLiveDate": "09 Mar 2022 00:00:00 GMT",
+    "endSettings": null,
+    "whitelistMintSettings": null,
+    "hiddenSettings": null,
+    "storage": "nft-storage",
+    "nftStorageKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDY1RWQzNmY0ODcwNTZmNmU4RmM5NkFmYjJDNEFjYkZlQWFFQTE4RGEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY0NzMwMjYwOTExMCwibmFtZSI6Imt5ZC1kZXYifQ.Vcx7fOMeUyRpOBOIpvtz09DdtcF3TIW5DjzkIv9sJCE",
+    "ipfsInfuraProjectId": null,
+    "ipfsInfuraSecret": null,
+    "awsS3Bucket": null,
+    "noRetainAuthority": false,
+    "noMutable": false
+}

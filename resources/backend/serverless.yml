@@ -26,6 +26,9 @@ provider:
 
 resources:
   Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
     DynamoTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
@@ -121,3 +124,6 @@ resources:
         Ref: UserPoolWebClient
       Export:
         Name: UserPool-Web-Client-${self:provider.stage}
+    S3Bucket:
+      Value:
+        Ref: S3Bucket

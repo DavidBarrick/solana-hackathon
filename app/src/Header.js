@@ -20,14 +20,14 @@ const Header = ({
         wrap="wrap"
         padding="1.5rem"
         bg="purple.500"
-        backgroundImage="linear-gradient(135deg,#6c33da,#a431ff)"
+        backgroundImage="linear-gradient(135deg,#fee140,#fa709a)"
         color="white"
         maxH="100px"
         {...props}
       >
         <Flex align="center" mr={5} mt={3}>
           <Heading as="h1" size="lg">
-            kyd
+            🎟 kyd
           </Heading>
         </Flex>
 
@@ -51,33 +51,6 @@ const Header = ({
               rounded="full"
             >
               <Text fontSize={["xs", "md"]}>Home</Text>
-            </Button>
-          </Link>
-          <Link to="/candidates">
-            <Button
-              mt={3}
-              mr={3}
-              p={[2, 4]}
-              bg={
-                location.pathname.startsWith("/candidates")
-                  ? "white"
-                  : "transparent"
-              }
-              border={
-                location.pathname.startsWith("/candidates") ? "none" : "1px"
-              }
-              borderColor={
-                location.pathname.startsWith("/candidates") ? "none" : "white"
-              }
-              color={
-                location.pathname.startsWith("/candidates") ? "black" : "white"
-              }
-              fontWeight={
-                location.pathname.startsWith("/candidates") ? "bold" : "normal"
-              }
-              rounded="full"
-            >
-              <Text fontSize={["xs", "md"]}>Candidates</Text>
             </Button>
           </Link>
         </Box>

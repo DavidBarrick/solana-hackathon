@@ -15,6 +15,7 @@ service: kyd-cognito-triggers
 
 custom:
   USER_POOL_NAME: ${cf:kyd-resources-${self:provider.stage}.UserPoolName}
+  S3_BUCKET: ${cf:kyd-resources-${self:provider.stage}.S3Bucket}
   SECRETS: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
 
 configValidationMode: error
@@ -25,6 +26,8 @@ provider:
   stage: ${opt:stage, 'dev'}
   memorySize: 1024
   timeout: 30
+  environment:
+    S3_BUCKET: ${self:custom.S3_BUCKET}
   tracing:
     lambda: true
   iam:
@@ -36,6 +39,13 @@ provider:
             - sns:*
           Resource:
             - "*"
+        - Effect: Allow
+          Action:
+            - s3:putObject
+            - s3:getObject
+          Resource:
+            - arn:aws:s3:::${self:custom.S3_BUCKET}
+            - arn:aws:s3:::${self:custom.S3_BUCKET}/*
 
 functions:
   createAuthChallenge:
