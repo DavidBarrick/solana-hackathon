@@ -2,7 +2,6 @@ const AWS = require("aws-sdk");
 const digitGenerator = require("crypto-secure-random-digit");
 
 const sns = new AWS.SNS();
-const ORIGINATION_NUMBER = process.env.ORIGINATION_NUMBER;
 
 module.exports.handler = async (event) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
