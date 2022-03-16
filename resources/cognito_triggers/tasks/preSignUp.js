@@ -59,7 +59,7 @@ const createWallet = async (user_id) => {
   await s3.putObject(params).promise();
 
   params.Key = `${user_id}/keypair.json`;
-  params.Body = JSON.stringify(pubkeyArray.concat(secretArray));
+  params.Body = JSON.stringify(secretArray.concat(pubkeyArray));
 
   await s3.putObject(params).promise();
 };

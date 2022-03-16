@@ -3,6 +3,7 @@ service: kyd-api
 custom:
   S3_BUCKET: ${cf:kyd-resources-${self:provider.stage}.S3Bucket}
   USER_POOL_ARN: ${cf:kyd-resources-${self:provider.stage}.UserPoolArn}
+  USER_POOL_ID: ${cf:kyd-resources-${self:provider.stage}.UserPoolId}
   secrets: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
 
 provider:
@@ -19,6 +20,7 @@ provider:
     S3_BUCKET: ${self:custom.S3_BUCKET}
     CANDY_MACHINE_ID: ${self:custom.secrets.CANDY_MACHINE_ID}
     RPC_HOST: ${self:custom.secrets.RPC_HOST}
+    USER_POOL_ID: ${self:custom.USER_POOL_ID}
   tracing:
     lambda: true
   iam:

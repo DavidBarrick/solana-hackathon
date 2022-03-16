@@ -7,7 +7,7 @@ const {
   SystemProgram,
 } = require("@solana/web3.js");
 
-export const toDate = (value) => {
+const toDate = (value) => {
   if (!value) {
     return;
   }
@@ -21,7 +21,7 @@ const numberFormater = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export const formatNumber = {
+const formatNumber = {
   format: (val) => {
     if (!val) {
       return "--";
@@ -38,28 +38,29 @@ export const formatNumber = {
   },
 };
 
-export const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID =
-  new anchor.web3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
+const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new anchor.web3.PublicKey(
+  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+);
 
-export const CIVIC = new anchor.web3.PublicKey(
+const CIVIC = new anchor.web3.PublicKey(
   "gatem74V238djXdzWnJf94Wo1DcnuGkfijbf3AuBhfs"
 );
 
-export const getAtaForMint = async (mint, buyer) => {
-  return await anchor.web3.PublicKey.findProgramAddress(
+const getAtaForMint = async (mint, buyer) => {
+  return anchor.web3.PublicKey.findProgramAddress(
     [buyer.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
     SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
   );
 };
 
-export const getNetworkExpire = async (gatekeeperNetwork) => {
+const getNetworkExpire = async (gatekeeperNetwork) => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [gatekeeperNetwork.toBuffer(), Buffer.from("expire")],
     CIVIC
   );
 };
 
-export const getNetworkToken = async (wallet, gatekeeperNetwork) => {
+const getNetworkToken = async (wallet, gatekeeperNetwork) => {
   return await anchor.web3.PublicKey.findProgramAddress(
     [
       wallet.toBuffer(),
@@ -71,7 +72,7 @@ export const getNetworkToken = async (wallet, gatekeeperNetwork) => {
   );
 };
 
-export function createAssociatedTokenAccountInstruction(
+function createAssociatedTokenAccountInstruction(
   associatedTokenAddress,
   payer,
   walletAddress,
@@ -120,3 +121,12 @@ export function createAssociatedTokenAccountInstruction(
     data: Buffer.from([]),
   });
 }
+
+module.exports = {
+  getAtaForMint,
+  toDate,
+  createAssociatedTokenAccountInstruction,
+  getNetworkToken,
+  getNetworkExpire,
+  SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+};

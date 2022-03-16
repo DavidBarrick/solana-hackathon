@@ -1,4 +1,4 @@
-import {
+const {
   Keypair,
   Commitment,
   Connection,
@@ -10,11 +10,11 @@ import {
   TransactionSignature,
   Blockhash,
   FeeCalculator,
-} from "@solana/web3.js";
+} = require("@solana/web3.js");
 
-import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+const { WalletNotConnectedError } = require("@solana/wallet-adapter-base");
 
-export const getErrorForTransaction = async (connection, txid) => {
+const getErrorForTransaction = async (connection, txid) => {
   // wait for all confirmation before geting transaction
   await connection.confirmTransaction(txid, "max");
 
@@ -41,13 +41,13 @@ export const getErrorForTransaction = async (connection, txid) => {
   return errors;
 };
 
-export const SequenceType = {
+const SequenceType = {
   Sequential: 0,
   Parallel: 1,
   StopOnFailure: 2,
 };
 
-export async function sendTransactionsWithManualRetry(
+async function sendTransactionsWithManualRetry(
   connection,
   wallet,
   instructions,
@@ -93,7 +93,9 @@ export async function sendTransactionsWithManualRetry(
           instructions,
           filteredSigners,
           SequenceType.StopOnFailure,
-          "single"
+          "single",
+          () => console.log("Transaction Success"),
+          (err) => console.err(err)
         );
         ids = ids.concat(txs.map((t) => t.txid));
       }
@@ -114,7 +116,7 @@ export async function sendTransactionsWithManualRetry(
   return ids;
 }
 
-export const sendTransactions = async (
+const sendTransactions = async (
   connection,
   wallet,
   instructionSet,
@@ -179,8 +181,9 @@ export const sendTransactions = async (
         successCallback(txid, i);
       })
       .catch((reason) => {
+        console.error(reason);
         // @ts-ignore
-        failCallback(signedTxns[i], i);
+        //failCallback(signedTxns[i], i);
         if (sequenceType === SequenceType.StopOnFailure) {
           breakEarlyObject.breakEarly = true;
           breakEarlyObject.i = i;
@@ -213,7 +216,7 @@ export const sendTransactions = async (
   return { number: signedTxns.length, txs: await Promise.all(pendingTxns) };
 };
 
-export const sendTransaction = async (
+const sendTransaction = async (
   connection,
   wallet,
   instructions,
@@ -280,7 +283,7 @@ export const sendTransaction = async (
   return { txid, slot };
 };
 
-export const sendTransactionWithRetry = async (
+const sendTransactionWithRetry = async (
   connection,
   wallet,
   instructions,
@@ -327,13 +330,13 @@ export const sendTransactionWithRetry = async (
   return { txid, slot };
 };
 
-export const getUnixTs = () => {
+const getUnixTs = () => {
   return new Date().getTime() / 1000;
 };
 
 const DEFAULT_TIMEOUT = 15000;
 
-export async function sendSignedTransaction({
+async function sendSignedTransaction({
   signedTransaction,
   connection,
   timeout = DEFAULT_TIMEOUT,
@@ -516,6 +519,17 @@ async function awaitTransactionSignatureConfirmation(
   console.log("Returning status", status);
   return status;
 }
-export function sleep(ms) {
+function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+module.exports = {
+  awaitTransactionSignatureConfirmation,
+  simulateTransaction,
+  sendSignedTransaction,
+  getUnixTs,
+  sendTransactions,
+  sendTransactionWithRetry,
+  sendTransactionsWithManualRetry,
+  getErrorForTransaction,
+};
