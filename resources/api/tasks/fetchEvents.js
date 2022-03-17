@@ -4,17 +4,10 @@ const { PublicKey, Connection, TokenAccount } = require("@solana/web3.js");
 const { Metadata } = require("@metaplex-foundation/mpl-token-metadata");
 
 const { TOKEN_PROGRAM_ID, getAccount } = require("@solana/spl-token");
+const { KYD_EVENTS } = require("./helpers/utils");
 
 const S3_BUCKET = process.env.S3_BUCKET;
 const RPC_HOST = process.env.RPC_HOST;
-
-const events = [
-  {
-    title: "KYDNYC",
-    date: "March 18th, 2022",
-    time: "7:00PM",
-  },
-];
 
 module.exports.handler = async (event = {}) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
@@ -27,10 +20,16 @@ module.exports.handler = async (event = {}) => {
   try {
     const pubkey = await fetchWallet(user_id);
     const tickets = await fetchTickets(pubkey);
+
+    for (const kydEvent of KYD_EVENTS) {
+      const isPurchased = tickets.find((t) => t.symbol === kydEvent.title);
+      kydEvent.is_purchased = !!isPurchased;
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify(
-        { success: true, result: { pubkey, events, tickets } },
+        { success: true, result: { pubkey, events: KYD_EVENTS, tickets } },
         null,
         2
       ),
@@ -80,20 +79,21 @@ const fetchTickets = async (pubkey) => {
     "processed"
   );
 
-  console.log(accounts);
-  const mints = [];
+  const metadatas = [];
   for (const account of accounts) {
     const tokenAccount = await getAccount(connection, account.pubkey);
-    console.log(tokenAccount);
-    if (tokenAccount.amount == BigInt(1)) {
+
+    if (tokenAccount.amount === BigInt(1)) {
       try {
-        const metadata = await Metadata.load(connection, tokenAccount.mint);
-        mints.push(metadata);
+        const metadataPDA = await Metadata.getPDA(tokenAccount.mint);
+        const metadata = await Metadata.load(connection, metadataPDA);
+        metadatas.push(metadata.data.data);
       } catch (err) {
         console.log("Could not fetch metadata: ", tokenAccount.mint.toString());
       }
     }
   }
 
-  return mints;
+  console.log(metadatas);
+  return metadatas;
 };

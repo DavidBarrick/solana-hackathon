@@ -16,7 +16,7 @@ const Header = ({
       <Flex
         as="nav"
         align="center"
-        justify="space-between"
+        justify="center"
         wrap="wrap"
         padding="1.5rem"
         bg="purple.500"
@@ -30,34 +30,6 @@ const Header = ({
             🎟 kyd
           </Heading>
         </Flex>
-
-        <Box>
-          <Link to="/events">
-            <Button
-              mt={3}
-              mr={3}
-              p={[2, 4]}
-              bg={
-                location.pathname.startsWith("/events")
-                  ? "white"
-                  : "transparent"
-              }
-              border={location.pathname.startsWith("/events") ? "none" : "1px"}
-              borderColor={
-                location.pathname.startsWith("/events") ? "none" : "white"
-              }
-              color={
-                location.pathname.startsWith("/events") ? "black" : "white"
-              }
-              fontWeight={
-                location.pathname.startsWith("/events") ? "bold" : "normal"
-              }
-              rounded="full"
-            >
-              <Text fontSize={["xs", "md"]}>Events</Text>
-            </Button>
-          </Link>
-        </Box>
       </Flex>
     </>
   );

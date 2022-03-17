@@ -1,9 +1,7 @@
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
-const { Keypair, PublicKey } = require("@solana/web3.js");
 const stripe = require("stripe")(process.env.STRIPE_SK);
-
-const S3_BUCKET = process.env.S3_BUCKET;
+const { KYD_EVENTS } = require("./helpers/utils");
 
 module.exports.handler = async (event = {}) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
@@ -39,22 +37,27 @@ module.exports.handler = async (event = {}) => {
 };
 
 const createCheckoutSession = async (user_id) => {
+  const kydEvent = KYD_EVENTS[0];
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
         price_data: {
           currency: "usd",
           product_data: {
-            name: "T-shirt",
+            name: kydEvent.title,
+            description: kydEvent.description,
+            images: [kydEvent.image],
           },
-          unit_amount: 2000,
+          unit_amount: kydEvent.price * 100,
         },
         quantity: 1,
       },
     ],
     mode: "payment",
-    success_url: "http://localhost:3001/success",
-    cancel_url: "http://localhost:3001/home",
+    success_url: `http://localhost:3001/events?processing=${encodeURIComponent(
+      "Processing ticket"
+    )}`,
+    cancel_url: "http://localhost:3001/events",
     metadata: {
       user_id,
     },

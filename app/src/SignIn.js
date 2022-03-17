@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import { Box, VStack, Button, useToast, Input, Text } from "@chakra-ui/react";
-import { Auth, input } from "aws-amplify";
+import { Auth } from "aws-amplify";
 import { showErrorToast, AUTH_STATES } from "./utils";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
 
-const SignIn = ({ fetchAuthState, authState }) => {
+const SignIn = ({ authState }) => {
   const toast = useToast();
   const inputRef = useRef(null);
   const history = useHistory();

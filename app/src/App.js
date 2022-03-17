@@ -13,20 +13,18 @@ import ProfileContext from "./Context/ProfileContext";
 import awsconfig from "./aws-exports";
 import Amplify, { Auth, Hub } from "aws-amplify";
 import { AUTH_STATES } from "./utils";
-import actions from "./actions";
 
-import "@fontsource/inter/200.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/700.css";
-import "@fontsource/inter/900.css";
+import "@fontsource/prompt/200.css";
+import "@fontsource/prompt/400.css";
+import "@fontsource/prompt/400.css";
+import "@fontsource/prompt/500.css";
+import "@fontsource/prompt/700.css";
+import "@fontsource/prompt/900.css";
 
 Amplify.configure(awsconfig);
 
 function App() {
   const browser = detect();
-  const [profile, setProfile] = useState({});
 
   const [authState, setAuthState] = useState(AUTH_STATES.LOADING);
 
@@ -73,7 +71,6 @@ function App() {
           ) : (
             <ProfileContext.Provider
               value={{
-                profile,
                 signOut: Auth.signOut,
               }}
             >

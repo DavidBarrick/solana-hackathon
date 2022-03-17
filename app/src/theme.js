@@ -1,16 +1,16 @@
-import { extendTheme } from '@chakra-ui/react';
+import { extendTheme } from "@chakra-ui/react";
 
 // 2. Add your color mode config
 const config = {
-  initialColorMode: 'light',
+  initialColorMode: "light",
   useSystemColorMode: false,
 };
 
 const theme = extendTheme({
   fonts: {
-    body: 'Inter',
-    heading: 'Inter',
-    mono: 'Inter',
+    body: "Prompt",
+    heading: "Prompt",
+    mono: "Prompt",
   },
   config,
 });

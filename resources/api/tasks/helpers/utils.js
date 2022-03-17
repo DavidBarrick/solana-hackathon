@@ -122,6 +122,19 @@ function createAssociatedTokenAccountInstruction(
   });
 }
 
+const KYD_EVENTS = [
+  {
+    title: "KYDNYC",
+    date: "March 18th, 2022",
+    time: "7:00PM",
+    image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
+    location: "Madison Square Garden",
+    price: 50,
+    description:
+      "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.",
+  },
+];
+
 module.exports = {
   getAtaForMint,
   toDate,
@@ -129,4 +142,5 @@ module.exports = {
   getNetworkToken,
   getNetworkExpire,
   SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+  KYD_EVENTS,
 };
