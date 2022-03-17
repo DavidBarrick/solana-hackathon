@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Box, VStack, Button, useToast, Input } from "@chakra-ui/react";
+import { Box, VStack, Button, useToast, Input, Text } from "@chakra-ui/react";
 import { Auth, input } from "aws-amplify";
 import { showErrorToast, AUTH_STATES } from "./utils";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
@@ -56,7 +56,7 @@ const SignIn = ({ fetchAuthState, authState }) => {
 
       phoneNumber = inputRef.current.value;
       const res = await Auth.signIn(phoneNumber);
-
+      inputRef.current.value = "";
       history.push("/auth/code");
 
       setAuthenticatingUser(res);
@@ -82,40 +82,68 @@ const SignIn = ({ fetchAuthState, authState }) => {
         inputRef.current.value
       );
     } catch (err) {
+      setLoading(false);
       showErrorToast(toast, err.message);
     }
-    setLoading(false);
   };
 
   return (
-    <Box bgGradient="linear(to-r, #fee140, #fa709a)" w="100%" h="100vh">
-      <VStack h="100%" maxW="lg" mx="auto" justifyContent="center">
+    <Box bgGradient="linear(to-r, #fee140, #fa709a)" w="100%" h="100vh" p={5}>
+      <VStack
+        h="100%"
+        rounded="lg"
+        maxW="lg"
+        bg="gray.50"
+        mx="auto"
+        justifyContent="center"
+        p={5}
+      >
         <VStack w="100%">
           {authState === AUTH_STATES.NEEDS_AUTH && (
             <Switch>
               <Route path="/auth/phone">
-                <Input ref={inputRef} fontSize="4xl" textAlign="center" />
+                <Text>Phone Number</Text>
+                <Input
+                  isDisabled={loading}
+                  ref={inputRef}
+                  fontSize="4xl"
+                  h="75px"
+                  fontWeight={"bold"}
+                  textAlign="center"
+                  placeholder="Phone Number"
+                />
                 <Button
-                  h="50px"
+                  h="60px"
                   bg="blue.300"
                   colorScheme="blue"
                   shadow="md"
                   w="100%"
                   color="white"
+                  isLoading={loading}
                   onClick={onSignIn}
                 >
                   Sign In
                 </Button>
               </Route>
               <Route path="/auth/code">
-                <Input ref={inputRef} fontSize="4xl" textAlign="center" />
+                <Text>Verification Code</Text>
+                <Input
+                  isDisabled={loading}
+                  ref={inputRef}
+                  fontSize="4xl"
+                  h="75px"
+                  fontWeight={"bold"}
+                  textAlign="center"
+                  placeholder="Verification Code"
+                />
                 <Button
-                  h="50px"
+                  h="60px"
                   bg="blue.300"
                   colorScheme="blue"
                   shadow="md"
                   w="100%"
                   color="white"
+                  isLoading={loading}
                   onClick={onVerificationCode}
                 >
                   Submit

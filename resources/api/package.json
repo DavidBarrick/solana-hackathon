@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^1.2.5",
     "@project-serum/anchor": "^0.22.1",
     "@solana/buffer-layout": "^4.0.0",
     "@solana/spl-token": "^0.2.0",

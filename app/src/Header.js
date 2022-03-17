@@ -32,25 +32,29 @@ const Header = ({
         </Flex>
 
         <Box>
-          <Link to="/home">
+          <Link to="/events">
             <Button
               mt={3}
               mr={3}
               p={[2, 4]}
               bg={
-                location.pathname.startsWith("/home") ? "white" : "transparent"
+                location.pathname.startsWith("/events")
+                  ? "white"
+                  : "transparent"
               }
-              border={location.pathname.startsWith("/home") ? "none" : "1px"}
+              border={location.pathname.startsWith("/events") ? "none" : "1px"}
               borderColor={
-                location.pathname.startsWith("/home") ? "none" : "white"
+                location.pathname.startsWith("/events") ? "none" : "white"
               }
-              color={location.pathname.startsWith("/home") ? "black" : "white"}
+              color={
+                location.pathname.startsWith("/events") ? "black" : "white"
+              }
               fontWeight={
-                location.pathname.startsWith("/home") ? "bold" : "normal"
+                location.pathname.startsWith("/events") ? "bold" : "normal"
               }
               rounded="full"
             >
-              <Text fontSize={["xs", "md"]}>Home</Text>
+              <Text fontSize={["xs", "md"]}>Events</Text>
             </Button>
           </Link>
         </Box>

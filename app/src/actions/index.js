@@ -1,12 +1,12 @@
 import { API } from "aws-amplify";
 
-const fetchProfile = async () => {
+const fetchEvents = async () => {
   const params = {
     queryStringParameters: fetchQueryParams(),
   };
 
   try {
-    const { result = {} } = await API.get("KYD_API", `/profile`, params);
+    const { result = {} } = await API.get("KYD_API", `/events`, params);
     return result;
   } catch (err) {
     const errData = err.response ? err.response.data : err;
@@ -45,7 +45,7 @@ const fetchQueryParams = () => {
 };
 
 const actions = {
-  fetchProfile,
+  fetchEvents,
   createPurchase,
 };
 

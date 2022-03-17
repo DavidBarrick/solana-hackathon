@@ -44,11 +44,11 @@ provider:
             - "*"
 
 functions:
-  fetchProfile:
-    handler: tasks/fetchProfile.handler
+  fetchEvents:
+    handler: tasks/fetchEvents.handler
     events:
       - http:
-          path: profile
+          path: events
           method: get
           private: true
           cors: true

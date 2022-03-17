@@ -30,24 +30,10 @@ function App() {
 
   const [authState, setAuthState] = useState(AUTH_STATES.LOADING);
 
-  const fetchProfile = async () => {
-    try {
-      const res = await actions.fetchProfile();
-      console.log(res);
-      setProfile(res);
-
-      return res;
-    } catch (err) {
-      console.log(err);
-      return {};
-    }
-  };
-
   const fetchAuthState = useCallback(async () => {
     try {
       const res = await Auth.currentAuthenticatedUser();
       if (res) {
-        const { company_id } = await fetchProfile();
         setAuthState(AUTH_STATES.AUTHENTICATED);
       } else {
         setAuthState(AUTH_STATES.NEEDS_AUTH);
@@ -88,7 +74,6 @@ function App() {
             <ProfileContext.Provider
               value={{
                 profile,
-                fetchProfile,
                 signOut: Auth.signOut,
               }}
             >
