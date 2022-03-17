@@ -9,17 +9,23 @@ import {
   VStack,
   Spinner,
   Modal,
+  Icon,
   ModalContent,
   ModalBody,
   ModalFooter,
   ModalOverlay,
   useToast,
+  Stack,
+  HStack,
 } from "@chakra-ui/react";
 import { useLocation, Link } from "react-router-dom";
 import actions from "./actions";
 import QRCode from "react-qr-code";
 import { showErrorToast } from "./utils";
 import ReactCardFlip from "react-card-flip";
+import { FaMap, FaCalendar, FaClock } from "react-icons/fa";
+import kydmark from "./kydmark.svg";
+import buttonbg from "./buttonbg.svg";
 
 const KYDEvents = () => {
   const [kydEvents, setKYDEvents] = useState([]);
@@ -94,19 +100,81 @@ const KYDEvents = () => {
       setKYDEvents(events);
       setPubkey(pubkey);
     } catch (err) {
-      showErrorToast(toast, err);
+      if (err !== "No current user") {
+        showErrorToast(toast, err);
+      }
     }
-    setLoading(false);
+
+    if (!pollingInterval) {
+      setLoading(false);
+    }
   };
 
-  const renderQRCode = () => (
+  const renderQRCode = (kydEvent) => (
     <VStack spacing={5} w="100%">
       <QRCode w="100%" value={pubkey} />
+      <Stack
+        py={5}
+        w="100%"
+        backgroundColor="black"
+        color={"white"}
+        textAlign="left"
+        p={3}
+        spacing={4}
+        bg="black"
+      >
+        <Stack px={4} spacing={-1}>
+          <Text
+            fontSize={"sm"}
+            fontStyle={"italic"}
+            color="#ffdc29"
+            fontWeight={"extrabold"}
+          >
+            Event:
+          </Text>
+          <Text fontSize={"xl"} fontWeight="bold">
+            KYDNYC Kickoff Party
+          </Text>
+        </Stack>
+
+        <Stack px={4}>
+          <Text lineHeight={"5"} fontSize={"xs"} fontWeight="semibold">
+            {kydEvent.description}
+          </Text>
+        </Stack>
+
+        <Stack px={4}>
+          <HStack spacing={4}>
+            <Icon color={"#ffdc29"} as={FaMap} />
+            <Text fontWeight={"semibold"} fontSize="sm" color={"#ffdc29"}>
+              {kydEvent.location}
+            </Text>
+          </HStack>
+
+          <HStack spacing={4}>
+            <Icon color={"#ffdc29"} as={FaCalendar} />
+            <Text fontWeight={"semibold"} fontSize="sm" color={"#ffdc29"}>
+              {kydEvent.date}
+            </Text>
+          </HStack>
+
+          <HStack spacing={4}>
+            <Icon color={"#ffdc29"} as={FaClock} />
+            <Text fontWeight={"semibold"} fontSize="sm" color={"#ffdc29"}>
+              {kydEvent.time}
+            </Text>
+          </HStack>
+        </Stack>
+      </Stack>
+
       <Button
-        bg="purple.500"
-        color="white"
+        bg="#ffdc29"
         w="100%"
         h="50px"
+        rounded="none"
+        color="black"
+        fontSize={"lg"}
+        fontWeight={"semibold"}
         onClick={() => setWalletModal(false)}
       >
         Close
@@ -115,62 +183,146 @@ const KYDEvents = () => {
   );
 
   return (
-    <VStack>
-      <VStack maxW={"lg"} p={5}>
+    <VStack
+      minH={"100vh"}
+      backgroundImage={
+        "repeating-radial-gradient( circle at 0 0, transparent 0, #000000 4px ), repeating-linear-gradient( #ffdc2955, #FFDC29 );"
+      }
+      pt={"50px"}
+    >
+      <Image src={kydmark} maxW="15%" />
+      <VStack maxW={"lg"} p={3}>
         {loading && (
           <VStack spacing={5}>
             {processingText && <Text>{processingText}</Text>}
-            <Spinner />
+            <Spinner size={"lg"} color="white" />
           </VStack>
         )}
         {!loading && (
-          <VStack spacing={5}>
-            <VStack w="100%">
+          <VStack>
+            <VStack w="100%" p={5}>
               {kydEvents.map((kydEvent) => (
                 <ReactCardFlip
                   isFlipped={walletModal}
                   flipDirection="horizontal"
+                  key={kydEvent.title}
                 >
-                  <VStack
+                  <Stack
                     key={kydEvent.title}
                     w="100%"
-                    border="1px"
-                    p={5}
-                    rounded={"lg"}
+                    backgroundColor="black"
+                    color={"white"}
+                    textAlign="left"
+                    p={3}
+                    spacing={4}
                   >
-                    <Image rounded={"lg"} maxW={"100%"} src={kydEvent.image} />
-                    <Text fontWeight="semibold">{kydEvent.title}</Text>
-                    <Text>{kydEvent.date}</Text>
-                    <Text>{kydEvent.time}</Text>
-                    <Text>{kydEvent.location}</Text>
-                    {kydEvent.is_purchased && <Text>✅ Purchased</Text>}
-
-                    {kydEvent.is_purchased && (
-                      <Button
-                        h="50px"
-                        w="100%"
-                        onClick={() => setWalletModal(true)}
+                    <Image
+                      borderWidth={"1px"}
+                      borderColor="gray.500"
+                      borderStyle="solid"
+                      src={kydEvent.image}
+                    />
+                    <Stack px={4} spacing={-1}>
+                      <Text
+                        fontSize={"sm"}
+                        fontStyle={"italic"}
+                        color="#ffdc29"
+                        fontWeight={"extrabold"}
                       >
-                        View Ticket
-                      </Button>
-                    )}
+                        Event:
+                      </Text>
+                      <Text fontSize={"xl"} fontWeight="bold">
+                        KYDNYC Kickoff Party
+                      </Text>
+                    </Stack>
 
-                    {!kydEvent.is_purchased && (
-                      <Button
-                        isLoading={loadingPurchase}
-                        h="50px"
-                        w="100%"
-                        onClick={onPurchase}
+                    <Stack px={4}>
+                      <Text
+                        lineHeight={"5"}
+                        fontSize={"xs"}
+                        fontWeight="semibold"
                       >
-                        Purchase
-                      </Button>
-                    )}
-                  </VStack>
-                  <VStack>{renderQRCode()}</VStack>
+                        {kydEvent.description}
+                      </Text>
+                    </Stack>
+
+                    <Stack px={4}>
+                      <HStack spacing={4}>
+                        <Icon color={"#ffdc29"} as={FaMap} />
+                        <Text
+                          fontWeight={"semibold"}
+                          fontSize="sm"
+                          color={"#ffdc29"}
+                        >
+                          {kydEvent.location}
+                        </Text>
+                      </HStack>
+
+                      <HStack spacing={4}>
+                        <Icon color={"#ffdc29"} as={FaCalendar} />
+                        <Text
+                          fontWeight={"semibold"}
+                          fontSize="sm"
+                          color={"#ffdc29"}
+                        >
+                          {kydEvent.date}
+                        </Text>
+                      </HStack>
+
+                      <HStack spacing={4}>
+                        <Icon color={"#ffdc29"} as={FaClock} />
+                        <Text
+                          fontWeight={"semibold"}
+                          fontSize="sm"
+                          color={"#ffdc29"}
+                        >
+                          {kydEvent.time}
+                        </Text>
+                      </HStack>
+                    </Stack>
+                    {/*kydEvent.is_purchased && <Text>✅ Purchased</Text>*/}
+                    <Stack pb={4} px={4}>
+                      {kydEvent.is_purchased && (
+                        <Button
+                          h="50px"
+                          w="60%"
+                          bg="#ffdc29"
+                          fontWeight={"semibold"}
+                          border="none"
+                          color="black"
+                          rounded="none"
+                          fontSize={"lg"}
+                          onClick={() => {
+                            setWalletModal(true);
+                            document.body.scrollTop = 0; // For Safari
+                            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                          }}
+                        >
+                          View Ticket
+                        </Button>
+                      )}
+                      {!kydEvent.is_purchased && (
+                        <Button
+                          isLoading={loadingPurchase}
+                          h="50px"
+                          w="60%"
+                          bg="#ffdc29"
+                          fontWeight={"semibold"}
+                          border="none"
+                          color="black"
+                          rounded="none"
+                          fontSize={"lg"}
+                          onClick={onPurchase}
+                        >
+                          Buy Ticket
+                        </Button>
+                      )}
+                    </Stack>
+                  </Stack>
+                  <VStack>{renderQRCode(kydEvent)}</VStack>
                 </ReactCardFlip>
               ))}
             </VStack>
-            <Text fontSize={"xs"}>{pubkey}</Text>
           </VStack>
         )}
       </VStack>

@@ -18,7 +18,9 @@ import "@fontsource/prompt/200.css";
 import "@fontsource/prompt/400.css";
 import "@fontsource/prompt/400.css";
 import "@fontsource/prompt/500.css";
+import "@fontsource/prompt/600.css"; //Semi Bold
 import "@fontsource/prompt/700.css";
+import "@fontsource/prompt/800.css";
 import "@fontsource/prompt/900.css";
 
 Amplify.configure(awsconfig);
@@ -75,35 +77,12 @@ function App() {
               }}
             >
               <Box textAlign="center" minH="100vh" fontSize="xl">
-                <Header />
                 <Switch>
                   <Route exact path="/events">
                     <KYDEvents />
                   </Route>
                   <Redirect to="/events" />
                 </Switch>
-                <Box
-                  d="flex"
-                  justifyContent="center"
-                  p={[3, null, 5]}
-                  bg="white"
-                >
-                  <Stack alignItems="center">
-                    <Stack isInline alignItems="center">
-                      <Text color="gray.500" fontWeight="normal" fontSize="sm">
-                        © 2022 kyd
-                      </Text>
-                      <Text color="gray.400" fontSize="xs">
-                        v{process.env.REACT_APP_VERSION}
-                      </Text>
-                      {browser && (
-                        <Text color="gray.400" fontSize="xs">
-                          {browser.os} | {browser.name}
-                        </Text>
-                      )}
-                    </Stack>
-                  </Stack>
-                </Box>
               </Box>
             </ProfileContext.Provider>
           )}

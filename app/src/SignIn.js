@@ -1,8 +1,18 @@
 import React, { useRef, useState } from "react";
-import { Box, VStack, Button, useToast, Input, Text } from "@chakra-ui/react";
-import { Auth } from "aws-amplify";
+import {
+  Box,
+  VStack,
+  Button,
+  useToast,
+  Input,
+  Text,
+  Stack,
+  Image,
+} from "@chakra-ui/react";
+import { Auth, input } from "aws-amplify";
 import { showErrorToast, AUTH_STATES } from "./utils";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import kydfull from "./logorhombus.svg";
 
 const SignIn = ({ authState }) => {
   const toast = useToast();
@@ -19,7 +29,10 @@ const SignIn = ({ authState }) => {
         throw Error("Phone required");
       }
 
-      const _phoneNumber = phoneNumber || inputRef.current.value;
+      let _phoneNumber = phoneNumber || inputRef.current.value;
+      if (_phoneNumber.indexOf("+") !== 0) {
+        _phoneNumber = `+1${_phoneNumber}`;
+      }
       const params = {
         username: _phoneNumber,
         password: getRandomString(30),
@@ -55,6 +68,9 @@ const SignIn = ({ authState }) => {
       }
 
       phoneNumber = inputRef.current.value;
+      if (phoneNumber.indexOf("+") !== 0) {
+        phoneNumber = `+1${phoneNumber}`;
+      }
       const res = await Auth.signIn(phoneNumber);
       inputRef.current.value = "";
       history.push("/auth/code");
@@ -88,73 +104,126 @@ const SignIn = ({ authState }) => {
   };
 
   return (
-    <Box bgGradient="linear(to-r, #fee140, #fa709a)" w="100%" h="100vh" p={5}>
-      <VStack
-        h="100%"
-        rounded="lg"
-        maxW="lg"
-        bg="gray.50"
-        mx="auto"
-        justifyContent="center"
-        p={5}
-      >
-        <VStack w="100%">
+    <VStack
+      backdropColor="black"
+      backgroundImage={
+        "repeating-radial-gradient( circle at 0 0, transparent 0, #000000 4px ), repeating-linear-gradient( #ffffff55, #ffffff )"
+      }
+      w="100%"
+      h="100vh"
+      p={5}
+    >
+      <VStack maxW="lg" h="100%" spacing={10} justifyContent="center" p={5}>
+        <Image maxW={"70%"} src={kydfull} />
+
+        <VStack w="100%" bg="black" p={5}>
           {authState === AUTH_STATES.NEEDS_AUTH && (
             <Switch>
               <Route path="/auth/phone">
-                <Text>Phone Number</Text>
-                <Input
-                  isDisabled={loading}
-                  ref={inputRef}
-                  fontSize="4xl"
-                  h="75px"
-                  fontWeight={"bold"}
-                  textAlign="center"
-                  placeholder="Phone Number"
-                />
-                <Button
-                  h="60px"
-                  bg="blue.300"
-                  colorScheme="blue"
-                  shadow="md"
-                  w="100%"
-                  color="white"
-                  isLoading={loading}
-                  onClick={onSignIn}
-                >
-                  Sign In
-                </Button>
+                <Stack spacing={4} color="white">
+                  <Stack>
+                    <Text
+                      letterSpacing={"2.5px"}
+                      fontWeight={"bold"}
+                      fontSize={"3xl"}
+                    >
+                      Enter phone.
+                    </Text>
+                    <Text
+                      letterSpacing={"1px"}
+                      maxW={"80%"}
+                      fontStyle="italic"
+                      fontWeight={"semibold"}
+                      fontSize={"xl"}
+                    >
+                      Welcome to the future of tickets.
+                    </Text>
+                  </Stack>
+
+                  <Input
+                    isDisabled={loading}
+                    ref={inputRef}
+                    fontSize="3xl"
+                    h="50px"
+                    color="black"
+                    fontWeight={"bold"}
+                    rounded={"none"}
+                    borderBottomColor="#ffdc29"
+                    borderBottomWidth={"3px"}
+                    bg="white"
+                  />
+
+                  <Button
+                    h="50px"
+                    bg="#ffdc29"
+                    w="60%"
+                    color="black"
+                    fontWeight="bold"
+                    fontSize={"xl"}
+                    rounded="none"
+                    isLoading={loading}
+                    onClick={onSignIn}
+                  >
+                    Sign In
+                  </Button>
+                </Stack>
               </Route>
               <Route path="/auth/code">
-                <Text>Verification Code</Text>
-                <Input
-                  isDisabled={loading}
-                  ref={inputRef}
-                  fontSize="4xl"
-                  h="75px"
-                  fontWeight={"bold"}
-                  textAlign="center"
-                  placeholder="Verification Code"
-                />
-                <Button
-                  h="60px"
-                  bg="blue.300"
-                  colorScheme="blue"
-                  shadow="md"
-                  w="100%"
-                  color="white"
-                  isLoading={loading}
-                  onClick={onVerificationCode}
-                >
-                  Submit
-                </Button>
+                <Stack spacing={4} color="white">
+                  <Stack>
+                    <Text
+                      letterSpacing={"2.5px"}
+                      fontWeight={"bold"}
+                      fontSize={"3xl"}
+                    >
+                      Enter code.
+                    </Text>
+                    <Text
+                      letterSpacing={"1px"}
+                      maxW={"85%"}
+                      fontStyle="italic"
+                      fontWeight={"semibold"}
+                      fontSize={"xl"}
+                    >
+                      Check your texts for a verification code.
+                    </Text>
+                  </Stack>
+
+                  <Input
+                    isDisabled={loading}
+                    ref={inputRef}
+                    fontSize="4xl"
+                    h="50px"
+                    fontWeight={"bold"}
+                    textAlign="center"
+                    rounded={"none"}
+                    borderBottomColor="#ffdc29"
+                    borderBottomWidth={"3px"}
+                    bg="white"
+                    color="black"
+                  />
+
+                  <Button
+                    h="50px"
+                    bg="#ffdc29"
+                    w="60%"
+                    color="black"
+                    fontWeight="bold"
+                    fontSize={"xl"}
+                    rounded="none"
+                    isLoading={loading}
+                    onClick={onVerificationCode}
+                  >
+                    Submit
+                  </Button>
+                </Stack>
               </Route>
               <Redirect to="/auth/phone" />
             </Switch>
           )}
         </VStack>
       </VStack>
-    </Box>
+    </VStack>
   );
 };
 
