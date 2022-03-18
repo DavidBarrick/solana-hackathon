@@ -76,6 +76,7 @@ const KYDEvents = () => {
     const processingParam = urlSearchParams.get("processing");
     if (processingParam) {
       setProcessingText(decodeURIComponent(processingParam));
+      setLoading(true);
       startPolling();
     } else {
       fetchEvents();
@@ -190,12 +191,14 @@ const KYDEvents = () => {
       }
       pt={"50px"}
     >
-      <Image src={kydmark} maxW="15%" />
+      <Image src={kydmark} maxW={["15%", "150px"]} />
       <VStack maxW={"lg"} p={3}>
         {loading && (
-          <VStack spacing={5}>
-            {processingText && <Text>{processingText}</Text>}
-            <Spinner size={"lg"} color="white" />
+          <VStack bg="#ffdc29" p={5} spacing={5}>
+            {processingText && (
+              <Text fontWeight={"semibold"}>{processingText}</Text>
+            )}
+            <Spinner size={"lg"} color="black" />
           </VStack>
         )}
         {!loading && (
