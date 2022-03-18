@@ -86,11 +86,11 @@ const KYDEvents = () => {
     setLoadingPurchase(true);
     try {
       const res = await actions.createPurchase("abc");
-      window.open(res.url);
+      window.location.assign(res.url);
     } catch (err) {
+      setLoadingPurchase(false);
       showErrorToast(toast, err);
     }
-    setLoadingPurchase(false);
   };
 
   const fetchEvents = async () => {
