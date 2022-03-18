@@ -6,8 +6,11 @@ const { Metadata } = require("@metaplex-foundation/mpl-token-metadata");
 const { TOKEN_PROGRAM_ID, getAccount } = require("@solana/spl-token");
 const { KYD_EVENTS } = require("./helpers/utils");
 
+const candymachine = require("./helpers/candymachine");
+
 const S3_BUCKET = process.env.S3_BUCKET;
 const RPC_HOST = process.env.RPC_HOST;
+const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 
 module.exports.handler = async (event = {}) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
@@ -18,18 +21,24 @@ module.exports.handler = async (event = {}) => {
   const { sub: user_id } = claims;
 
   try {
+    const connection = new Connection(RPC_HOST, "confirmed");
+
     const pubkey = await fetchWallet(user_id);
-    const tickets = await fetchTickets(pubkey);
+    const tickets = await fetchTickets(connection, pubkey);
+    const cm = await fetchCandyMachine(connection);
 
     for (const kydEvent of KYD_EVENTS) {
-      const isPurchased = tickets.find((t) => t.symbol === kydEvent.title);
+      const isPurchased = tickets.find((t) => t.symbol === kydEvent.symbol);
       kydEvent.is_purchased = !!isPurchased;
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify(
-        { success: true, result: { pubkey, events: KYD_EVENTS, tickets } },
+        {
+          success: true,
+          result: { pubkey, events: KYD_EVENTS, tickets, cm },
+        },
         null,
         2
       ),
@@ -69,10 +78,19 @@ const fetchWallet = async (user_id) => {
   }
 };
 
-const fetchTickets = async (pubkey) => {
+const fetchCandyMachine = async (connection) => {
+  const cm = await candymachine.getCandyMachineState(
+    null,
+    CANDY_MACHINE_ID,
+    connection
+  );
+
+  return cm.state;
+};
+
+const fetchTickets = async (connection, pubkey) => {
   console.log("Fetch Tickets: ", pubkey);
 
-  const connection = new Connection(RPC_HOST, "confirmed");
   const { value: accounts = [] } = await connection.getTokenAccountsByOwner(
     new PublicKey(pubkey),
     { programId: TOKEN_PROGRAM_ID },

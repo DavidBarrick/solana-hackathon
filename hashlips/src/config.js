@@ -5,8 +5,9 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const network = NETWORK.sol;
 
 // General metadata for Ethereum
-const namePrefix = "KYD Launch Party";
-const description = "The greatest party on earth";
+const namePrefix = "KYDNYC Launch Party Ticket";
+const description =
+  "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.";
 const baseUri = "ipfs://NewUriToReplace";
 
 const solanaMetadata = {
@@ -15,7 +16,11 @@ const solanaMetadata = {
   creators: [
     {
       address: "5tMWkVwy8UrRBaXFYgPTVzLxD4VdctXVnqtcaxLGsziK",
-      share: 100,
+      share: 30,
+    },
+    {
+      address: "2i9pcQj3z2YyPa2yUH2tCb6yTjPdBStZ9i5yKJLBASGk",
+      share: 70,
     },
   ],
 };
@@ -33,8 +38,8 @@ const shuffleLayerConfigurations = false;
 const debugLogs = false;
 
 const format = {
-  width: 512,
-  height: 512,
+  width: 1024,
+  height: 1024,
   smoothing: false,
 };
 

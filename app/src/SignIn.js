@@ -43,6 +43,7 @@ const SignIn = ({ authState }) => {
       setAuthenticatingUser(res);
 
       history.push("/auth/code");
+      inputRef.current.value = "";
     } catch (err) {
       showErrorToast(toast, err.message);
     }
@@ -72,8 +73,8 @@ const SignIn = ({ authState }) => {
         phoneNumber = `+1${phoneNumber}`;
       }
       const res = await Auth.signIn(phoneNumber);
-      inputRef.current.value = "";
       history.push("/auth/code");
+      inputRef.current.value = "";
 
       setAuthenticatingUser(res);
     } catch (err) {
@@ -114,7 +115,13 @@ const SignIn = ({ authState }) => {
       p={5}
     >
       <VStack maxW="lg" h="100%" spacing={10} justifyContent="center" p={5}>
-        <Image maxW={"70%"} src={kydfull} />
+        <Image
+          maxW={"70%"}
+          src={kydfull}
+          onClick={() =>
+            window.open("https://github.com/davidbarrick/solana-hackathon")
+          }
+        />
 
         <VStack w="100%" bg="black" p={5}>
           {authState === AUTH_STATES.NEEDS_AUTH && (
@@ -151,6 +158,7 @@ const SignIn = ({ authState }) => {
                     borderBottomColor="#ffdc29"
                     borderBottomWidth={"3px"}
                     bg="white"
+                    type={"number"}
                   />
 
                   <Button
@@ -201,6 +209,7 @@ const SignIn = ({ authState }) => {
                     borderBottomWidth={"3px"}
                     bg="white"
                     color="black"
+                    type={"number"}
                   />
 
                   <Button

@@ -37,6 +37,8 @@ const KYDEvents = () => {
   const [processingText, setProcessingText] = useState(false);
   const [pollingInterval, setPollingInterval] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [candyMachine, setCandyMachine] = useState(null);
+
   const toast = useToast();
 
   const urlSearchParams = new URLSearchParams(window.location.search);
@@ -97,16 +99,17 @@ const KYDEvents = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const { events = [], pubkey } = await actions.fetchEvents();
+      const { events = [], pubkey, cm } = await actions.fetchEvents();
       setKYDEvents(events);
       setPubkey(pubkey);
+      setCandyMachine(cm);
     } catch (err) {
       if (err !== "No current user") {
         showErrorToast(toast, err);
       }
     }
 
-    if (!pollingInterval) {
+    if (!pollingInterval && !processingText) {
       setLoading(false);
     }
   };
@@ -134,7 +137,7 @@ const KYDEvents = () => {
             Event:
           </Text>
           <Text fontSize={"xl"} fontWeight="bold">
-            KYDNYC Kickoff Party
+            {kydEvent.title}
           </Text>
         </Stack>
 
@@ -144,7 +147,7 @@ const KYDEvents = () => {
           </Text>
         </Stack>
 
-        <Stack px={4}>
+        <Stack mb={2} px={4}>
           <HStack spacing={4}>
             <Icon color={"#ffdc29"} as={FaMap} />
             <Text fontWeight={"semibold"} fontSize="sm" color={"#ffdc29"}>
@@ -187,11 +190,17 @@ const KYDEvents = () => {
     <VStack
       minH={"100vh"}
       backgroundImage={
-        "repeating-radial-gradient( circle at 0 0, transparent 0, #000000 4px ), repeating-linear-gradient( #ffdc2955, #FFDC29 );"
+        "repeating-radial-gradient( circle at 0 0, transparent 0, #000000 4px ), repeating-linear-gradient( #534600b0, #FFDC29 );"
       }
       pt={"50px"}
     >
-      <Image src={kydmark} maxW={["15%", "150px"]} />
+      <Image
+        src={kydmark}
+        maxW={["15%", "150px"]}
+        onClick={() =>
+          window.open("https://github.com/davidbarrick/solana-hackathon")
+        }
+      />
       <VStack maxW={"lg"} p={3}>
         {loading && (
           <VStack bg="#ffdc29" p={5} spacing={5}>
@@ -213,113 +222,150 @@ const KYDEvents = () => {
                   <Stack
                     key={kydEvent.title}
                     w="100%"
-                    backgroundColor="black"
                     color={"white"}
                     textAlign="left"
-                    p={3}
-                    spacing={4}
                   >
-                    <Image
-                      borderWidth={"1px"}
-                      borderColor="gray.500"
-                      borderStyle="solid"
-                      src={kydEvent.image}
-                    />
-                    <Stack px={4} spacing={-1}>
-                      <Text
-                        fontSize={"sm"}
-                        fontStyle={"italic"}
-                        color="#ffdc29"
-                        fontWeight={"extrabold"}
-                      >
-                        Event:
-                      </Text>
-                      <Text fontSize={"xl"} fontWeight="bold">
-                        KYDNYC Kickoff Party
-                      </Text>
-                    </Stack>
-
-                    <Stack px={4}>
-                      <Text
-                        lineHeight={"5"}
-                        fontSize={"xs"}
-                        fontWeight="semibold"
-                      >
-                        {kydEvent.description}
-                      </Text>
-                    </Stack>
-
-                    <Stack px={4}>
-                      <HStack spacing={4}>
-                        <Icon color={"#ffdc29"} as={FaMap} />
+                    <Stack
+                      spacing={4}
+                      p={3}
+                      backgroundColor="black"
+                      zIndex="101"
+                    >
+                      <Image
+                        borderWidth={"1px"}
+                        borderColor="gray.500"
+                        borderStyle="solid"
+                        minH={"100%"}
+                        src={kydEvent.image}
+                      />
+                      <Stack px={4} spacing={-1}>
                         <Text
-                          fontWeight={"semibold"}
-                          fontSize="sm"
-                          color={"#ffdc29"}
+                          fontSize={"sm"}
+                          fontStyle={"italic"}
+                          color="#ffdc29"
+                          fontWeight={"extrabold"}
                         >
-                          {kydEvent.location}
+                          Event:
                         </Text>
-                      </HStack>
+                        <Text fontSize={"xl"} fontWeight="bold">
+                          {kydEvent.title}
+                        </Text>
+                      </Stack>
 
-                      <HStack spacing={4}>
-                        <Icon color={"#ffdc29"} as={FaCalendar} />
+                      <Stack px={4}>
                         <Text
-                          fontWeight={"semibold"}
-                          fontSize="sm"
-                          color={"#ffdc29"}
+                          lineHeight={"5"}
+                          fontSize={"xs"}
+                          fontWeight="semibold"
                         >
-                          {kydEvent.date}
+                          {kydEvent.description}
                         </Text>
-                      </HStack>
+                      </Stack>
 
-                      <HStack spacing={4}>
-                        <Icon color={"#ffdc29"} as={FaClock} />
-                        <Text
-                          fontWeight={"semibold"}
-                          fontSize="sm"
-                          color={"#ffdc29"}
-                        >
-                          {kydEvent.time}
-                        </Text>
-                      </HStack>
-                    </Stack>
-                    {/*kydEvent.is_purchased && <Text>✅ Purchased</Text>*/}
-                    <Stack pb={4} px={4}>
-                      {kydEvent.is_purchased && (
-                        <Button
-                          h="50px"
-                          w="60%"
-                          bg="#ffdc29"
-                          fontWeight={"semibold"}
-                          border="none"
-                          color="black"
-                          rounded="none"
-                          fontSize={"lg"}
-                          onClick={() => {
-                            setWalletModal(true);
-                            document.body.scrollTop = 0; // For Safari
-                            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-                          }}
-                        >
-                          View Ticket
-                        </Button>
-                      )}
-                      {!kydEvent.is_purchased && (
-                        <Button
-                          isLoading={loadingPurchase}
-                          h="50px"
-                          w="60%"
-                          bg="#ffdc29"
-                          fontWeight={"semibold"}
-                          border="none"
-                          color="black"
-                          rounded="none"
-                          fontSize={"lg"}
-                          onClick={onPurchase}
-                        >
-                          Buy Ticket
-                        </Button>
-                      )}
+                      <Stack px={4}>
+                        <HStack spacing={4}>
+                          <Icon color={"#ffdc29"} as={FaMap} />
+                          <Text
+                            fontWeight={"semibold"}
+                            fontSize="sm"
+                            color={"#ffdc29"}
+                          >
+                            {kydEvent.location}
+                          </Text>
+                        </HStack>
+
+                        <HStack spacing={4}>
+                          <Icon color={"#ffdc29"} as={FaCalendar} />
+                          <Text
+                            fontWeight={"semibold"}
+                            fontSize="sm"
+                            color={"#ffdc29"}
+                          >
+                            {kydEvent.date}
+                          </Text>
+                        </HStack>
+
+                        <HStack spacing={4}>
+                          <Icon color={"#ffdc29"} as={FaClock} />
+                          <Text
+                            fontWeight={"semibold"}
+                            fontSize="sm"
+                            color={"#ffdc29"}
+                          >
+                            {kydEvent.time}
+                          </Text>
+                        </HStack>
+                      </Stack>
+                      {/*kydEvent.is_purchased && <Text>✅ Purchased</Text>*/}
+                      <Stack pb={4} px={4}>
+                        {kydEvent.is_purchased && (
+                          <Button
+                            h="50px"
+                            w="60%"
+                            bg="#ffdc29"
+                            fontWeight={"semibold"}
+                            border="none"
+                            color="black"
+                            rounded="none"
+                            fontSize={"lg"}
+                            onClick={() => {
+                              setWalletModal(true);
+                              document.body.scrollTop = 0; // For Safari
+                              document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                            }}
+                          >
+                            View Ticket
+                          </Button>
+                        )}
+                        {!kydEvent.is_purchased && (
+                          <Stack mt={2} spacing={0}>
+                            <Button
+                              isLoading={loadingPurchase}
+                              h="50px"
+                              w="60%"
+                              bg="#ffdc29"
+                              fontWeight={"semibold"}
+                              border="none"
+                              color="black"
+                              rounded="none"
+                              fontSize={"lg"}
+                              onClick={onPurchase}
+                            >
+                              Buy Ticket
+                            </Button>
+                            <HStack spacing={1}>
+                              <Text
+                                fontWeight={"semibold"}
+                                fontSize="sm"
+                                color={"white"}
+                              >
+                                {candyMachine.itemsRemaining}
+                              </Text>
+                              <Text
+                                fontWeight={"semibold"}
+                                fontSize="sm"
+                                color={"#ffdc29"}
+                              >
+                                /
+                              </Text>
+                              <Text
+                                fontWeight={"semibold"}
+                                fontSize="sm"
+                                color={"white"}
+                              >
+                                {candyMachine.itemsAvailable}
+                              </Text>
+                              <Text
+                                fontWeight={"semibold"}
+                                fontSize="sm"
+                                color={"white"}
+                              >
+                                remaining
+                              </Text>
+                            </HStack>
+                          </Stack>
+                        )}
+                      </Stack>
                     </Stack>
                   </Stack>
                   <VStack>{renderQRCode(kydEvent)}</VStack>

@@ -1,14 +1,14 @@
 {
-  "name": "KYD Launch Party #5",
+  "name": "KYDNYC Launch Party Ticket #5",
   "symbol": "KYDNYC",
-  "description": "The greatest party on earth",
+  "description": "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.",
   "seller_fee_basis_points": 1000,
   "image": "5.png",
   "edition": 5,
   "attributes": [
     {
       "trait_type": "Background",
-      "value": "Base"
+      "value": "Ticket"
     }
   ],
   "properties": {
@@ -22,7 +22,11 @@
     "creators": [
       {
         "address": "5tMWkVwy8UrRBaXFYgPTVzLxD4VdctXVnqtcaxLGsziK",
-        "share": 100
+        "share": 30
+      },
+      {
+        "address": "2i9pcQj3z2YyPa2yUH2tCb6yTjPdBStZ9i5yKJLBASGk",
+        "share": 70
       }
     ]
   }
