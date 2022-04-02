@@ -1,4 +1,6 @@
 const AWS = require("aws-sdk");
+const dynamo = new AWS.DynamoDB.DocumentClient();
+
 const s3 = new AWS.S3();
 const {
   Keypair,
@@ -13,6 +15,7 @@ const candymachine = require("./helpers/candymachine");
 const { getAtaForMint } = require("./helpers/utils");
 const anchor = require("@project-serum/anchor");
 const splToken = require("@solana/spl-token");
+const { v4: uuidv4 } = require("uuid");
 
 const cognito = new AWS.CognitoIdentityServiceProvider();
 
@@ -51,6 +54,11 @@ module.exports.handler = async (event = {}) => {
     const mint = await mintTicket(connection, masterWallet, user_id);
     console.log("Minted Ticket: ", mint);
     await transferTicket(connection, masterSigner, userWallet, mint);
+    await createDynamoRecords({
+      user_id,
+      mint,
+      pubkey: userSigner.publicKey.toString(),
+    });
     await sendConfirmationMessage(mint, phone_number);
 
     return {
@@ -183,6 +191,55 @@ const transferTicket = async (connection, masterSigner, userWallet, mint) => {
   ]);
 
   console.log(response);
+};
+
+const createDynamoRecords = async ({ user_id, mint, pubkey }) => {
+  const ticketId = `TK${uuidv4()}`;
+  const metadata = {
+    user_id,
+    pubkey,
+    mint,
+  };
+
+  const params = {
+    TransactItems: [
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `TICKET#${ticketId}`,
+            data: "#",
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `USER#${userId}`,
+            data: "#",
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `MINT#${mint}`,
+            data: "#",
+            metadata,
+          },
+        },
+      },
+    ],
+  };
+
+  return dynamo.transactWrite(params).promise();
 };
 
 const sendConfirmationMessage = async (mint, phone_number) => {

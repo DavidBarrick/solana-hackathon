@@ -4,6 +4,8 @@ custom:
   S3_BUCKET: ${cf:kyd-resources-${self:provider.stage}.S3Bucket}
   USER_POOL_ARN: ${cf:kyd-resources-${self:provider.stage}.UserPoolArn}
   USER_POOL_ID: ${cf:kyd-resources-${self:provider.stage}.UserPoolId}
+  TABLE_NAME: ${cf:kyd-resources-${self:provider.stage}.DynamoTable}
+  TABLE_ARN: ${cf:kyd-resources-${self:provider.stage}.DynamoTableArn}
   secrets: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
 
 provider:
@@ -21,6 +23,7 @@ provider:
     CANDY_MACHINE_ID: ${self:custom.secrets.CANDY_MACHINE_ID}
     RPC_HOST: ${self:custom.secrets.RPC_HOST}
     USER_POOL_ID: ${self:custom.USER_POOL_ID}
+    TABLE_NAME: ${self:custom.TABLE_NAME}
   tracing:
     lambda: true
   iam:
@@ -42,6 +45,13 @@ provider:
             - sns:*
           Resource:
             - "*"
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+          Resource:
+            - ${self:custom.TABLE_ARN}
 
 functions:
   fetchEvents:
@@ -62,6 +72,17 @@ functions:
     events:
       - http:
           path: events/{event_id}/purchase
+          method: post
+          private: true
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${self:custom.USER_POOL_ARN}
+  validateCode:
+    handler: tasks/validateCode.handler
+    events:
+      - http:
+          path: validate
           method: post
           private: true
           cors: true

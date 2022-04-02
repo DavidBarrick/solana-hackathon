@@ -124,13 +124,13 @@ function createAssociatedTokenAccountInstruction(
 
 const KYD_EVENTS = [
   {
-    title: "KYDNYC Launch Party",
-    symbol: "KYDNYC",
-    date: "March 18th, 2022",
+    title: "KYDNYC Miami",
+    symbol: "KYDMIAMI",
+    date: "April 8th, 2022",
     time: "7:00PM",
     image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
-    location: "Madison Square Garden",
-    price: 50,
+    location: "Soho House",
+    price: 5,
     seat: "GA",
     description:
       "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.",
