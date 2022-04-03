@@ -7,6 +7,7 @@ import Header from "./Header";
 
 import SignIn from "./SignIn";
 import KYDEvents from "./KYDEvents";
+import KYDScanner from "./KYDScanner";
 
 import { detect } from "detect-browser";
 import ProfileContext from "./Context/ProfileContext";
@@ -80,6 +81,9 @@ function App() {
                 <Switch>
                   <Route exact path="/events">
                     <KYDEvents />
+                  </Route>
+                  <Route exact path="/scanner">
+                    <KYDScanner />
                   </Route>
                   <Redirect to="/events" />
                 </Switch>
