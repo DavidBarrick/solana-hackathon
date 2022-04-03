@@ -4,6 +4,7 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import { detect } from "detect-browser";
+import md5 from "crypto-js/md5";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -213,6 +214,10 @@ const shortAddress = (address) => {
   return `${address.slice(0, 5)}...${address.slice(address.length - 5)}`;
 };
 
+const generateChecksum = (message) => {
+  return md5(message);
+};
+
 export {
   convertTZ,
   showErrorToast,
@@ -229,5 +234,6 @@ export {
   isiOSDevice,
   isMobileChrome,
   shortAddress,
+  generateChecksum,
   AUTH_STATES,
 };

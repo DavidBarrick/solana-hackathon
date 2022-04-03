@@ -12,6 +12,7 @@
     "@testing-library/react": "^10.4.9",
     "@testing-library/user-event": "^12.8.3",
     "aws-amplify": "^4.3.6",
+    "crypto-js": "^4.1.1",
     "dayjs": "^1.10.7",
     "detect-browser": "^5.2.1",
     "framer-motion": "^4.1.17",

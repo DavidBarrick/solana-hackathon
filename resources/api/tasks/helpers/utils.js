@@ -124,7 +124,7 @@ function createAssociatedTokenAccountInstruction(
 
 const KYD_EVENTS = [
   {
-    title: "KYDNYC Miami",
+    title: "KYD Miami",
     symbol: "KYDMIAMI",
     date: "April 8th, 2022",
     time: "7:00PM",

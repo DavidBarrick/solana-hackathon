@@ -459,7 +459,6 @@ module.exports = {
   mintOneToken,
   awaitTransactionSignatureConfirmation,
   shortenAddress,
-  mintOneToken,
   getCollectionAuthorityRecordPDA,
   getCollectionPDA,
   getCandyMachineCreator,
