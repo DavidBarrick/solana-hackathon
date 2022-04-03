@@ -23,11 +23,12 @@ module.exports.handler = async (event = {}) => {
   try {
     const connection = new Connection(RPC_HOST, "confirmed");
 
+    const events = await fetchEvents();
     const pubkey = await fetchWallet(user_id);
     const tickets = await fetchTickets(connection, pubkey);
     const cm = await fetchCandyMachine(connection);
 
-    for (const kydEvent of KYD_EVENTS) {
+    for (const kydEvent of events) {
       const isPurchased = tickets.find((t) => t.symbol === kydEvent.symbol);
       kydEvent.is_purchased = !!isPurchased;
     }
@@ -37,7 +38,7 @@ module.exports.handler = async (event = {}) => {
       body: JSON.stringify(
         {
           success: true,
-          result: { pubkey, events: KYD_EVENTS, tickets, cm },
+          result: { pubkey, events, tickets, cm },
         },
         null,
         2

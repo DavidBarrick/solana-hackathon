@@ -1,33 +1,23 @@
-const AWS = require("aws-sdk");
-const digitGenerator = require("crypto-secure-random-digit");
-
-const sns = new AWS.SNS();
+// Download the helper library from https://www.twilio.com/docs/node/install
+// Find your Account SID and Auth Token at twilio.com/console
+// and set the environment variables. See http://twil.io/secure
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_VERIFY_SERVICE_ID = process.env.TWILIO_VERIFY_SERVICE_ID;
+const twilioClient = require("twilio")(accountSid, authToken);
 
 module.exports.handler = async (event) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
 
   try {
     const { request = {} } = event;
-    const { session = [], userAttributes = {}, userNotFound } = request;
+    const { userAttributes = {}, userNotFound } = request;
+    const { phone_number } = userAttributes;
     if (userNotFound) {
       throw { status: 400, message: "User not found" };
     }
 
-    let secretLoginCode;
-    if (!session || !session.length) {
-      // This is a new auth session
-      // Generate a new secret login code and mail it to the user
-      secretLoginCode = digitGenerator.randomDigits(6).join("");
-      await sendSms(userAttributes.phone_number, secretLoginCode);
-    } else {
-      // There's an existing session. Don't generate new digits but
-      // re-use the code from the current session. This allows the user to
-      // make a mistake when keying in the code and to then retry, rather
-      // the needing to e-mail the user an all new code again.
-      const previousChallenge = session.slice(-1)[0];
-      secretLoginCode =
-        previousChallenge.challengeMetadata.match(/CODE-(\d*)/)[1];
-    }
+    let secretLoginCode = "ABC";
 
     // Add the secret login code to the private challenge parameters
     // so it can be verified by the "Verify Auth Challenge Response" trigger
@@ -37,17 +27,18 @@ module.exports.handler = async (event) => {
     // in a next invocation of the "Create Auth Challenge" trigger
     event.response.challengeMetadata = `CODE-${secretLoginCode}`;
 
+    await sendSms(phone_number);
+
     return event;
   } catch (err) {
     throw err.message;
   }
 };
 
-const sendSms = async (phone_number, secretLoginCode) => {
-  const params = {
-    Message: `Code: ${secretLoginCode}` /* required */,
-    PhoneNumber: phone_number,
-  };
+const sendSms = async (phone_number) => {
+  const result = await twilioClient.verify
+    .services(TWILIO_VERIFY_SERVICE_ID)
+    .verifications.create({ to: phone_number, channel: "sms" });
 
-  await sns.publish(params).promise();
+  console.log("Result: ", JSON.stringify(result));
 };

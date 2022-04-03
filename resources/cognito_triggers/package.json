@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@solana/web3.js": "^1.36.0",
-    "crypto-secure-random-digit": "^1.0.9"
+    "crypto-secure-random-digit": "^1.0.9",
+    "twilio": "^3.76.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

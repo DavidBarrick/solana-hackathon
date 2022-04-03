@@ -17,6 +17,9 @@ custom:
   USER_POOL_NAME: ${cf:kyd-resources-${self:provider.stage}.UserPoolName}
   S3_BUCKET: ${cf:kyd-resources-${self:provider.stage}.S3Bucket}
   SECRETS: ${ssm:/aws/reference/secretsmanager/kyd-${self:provider.stage}}
+  TWILIO_ACCOUNT_SID: ${self:custom.SECRETS.TWILIO_ACCOUNT_SID}
+  TWILIO_AUTH_TOKEN: ${self:custom.SECRETS.TWILIO_AUTH_TOKEN}
+  TWILIO_VERIFY_SERVICE_ID: ${self:custom.SECRETS.TWILIO_VERIFY_SERVICE_ID}
 
 configValidationMode: error
 
@@ -28,6 +31,9 @@ provider:
   timeout: 30
   environment:
     S3_BUCKET: ${self:custom.S3_BUCKET}
+    TWILIO_ACCOUNT_SID: ${self:custom.TWILIO_ACCOUNT_SID}
+    TWILIO_AUTH_TOKEN: ${self:custom.TWILIO_AUTH_TOKEN}
+    TWILIO_VERIFY_SERVICE_ID: ${self:custom.TWILIO_VERIFY_SERVICE_ID}
   tracing:
     lambda: true
   iam:

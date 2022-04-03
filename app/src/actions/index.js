@@ -34,9 +34,12 @@ const createPurchase = async (event_id) => {
 
 const scanTicketCode = async (code) => {
   const params = {
-    code,
+    body: {
+      code,
+    },
   };
 
+  console.log(params);
   try {
     const { result = {} } = await API.post("KYD_API", `/validate`, params);
     return result;
