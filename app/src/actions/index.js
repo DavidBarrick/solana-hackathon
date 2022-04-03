@@ -32,6 +32,20 @@ const createPurchase = async (event_id) => {
   }
 };
 
+const scanTicketCode = async (code) => {
+  const params = {
+    code,
+  };
+
+  try {
+    const { result = {} } = await API.post("KYD_API", `/validate`, params);
+    return result;
+  } catch (err) {
+    const errData = err.response ? err.response.data : err;
+    throw errData;
+  }
+};
+
 const fetchQueryParams = () => {
   const searchParams = new URLSearchParams(window.location.search);
   var retval;
@@ -47,6 +61,7 @@ const fetchQueryParams = () => {
 const actions = {
   fetchEvents,
   createPurchase,
+  scanTicketCode,
 };
 
 export default actions;
