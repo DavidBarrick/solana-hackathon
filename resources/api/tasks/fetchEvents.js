@@ -1,5 +1,7 @@
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
+const dynamo = new AWS.DynamoDB.DocumentClient();
+
 const { PublicKey, Connection, TokenAccount } = require("@solana/web3.js");
 const { Metadata } = require("@metaplex-foundation/mpl-token-metadata");
 
@@ -11,6 +13,7 @@ const candymachine = require("./helpers/candymachine");
 const S3_BUCKET = process.env.S3_BUCKET;
 const RPC_HOST = process.env.RPC_HOST;
 const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
+const TABLE_NAME = process.env.TABLE_NAME;
 
 module.exports.handler = async (event = {}) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
@@ -77,6 +80,23 @@ const fetchWallet = async (user_id) => {
     console.log(`No wallet for user: ${user_id}`);
     throw { status: 404, messages: `User not found` };
   }
+};
+
+const fetchEvents = async () => {
+  const params = {
+    TableName: TABLE_NAME,
+    IndexName: "sk-data-index",
+    KeyConditionExpression: `#sk = :sk`,
+    ExpressionAttributeNames: {
+      "#sk": "sk",
+    },
+    ExpressionAttributeValues: {
+      ":sk": "EVENT#CREATED",
+    },
+  };
+
+  const { Items = [] } = await dynamo.query(params).promise();
+  return [Items.pop().metadata];
 };
 
 const fetchCandyMachine = async (connection) => {

@@ -33,6 +33,7 @@ provider:
         - Effect: Allow
           Action:
             - s3:getObject
+            - s3:putObject
           Resource:
             - arn:aws:s3:::${self:custom.S3_BUCKET}/*
         - Effect: Allow
@@ -51,7 +52,7 @@ provider:
             - dynamodb:GetItem
             - dynamodb:Query
           Resource:
-            - ${self:custom.TABLE_ARN}
+            - ${self:custom.TABLE_ARN}*
 
 functions:
   fetchEvents:
@@ -72,6 +73,17 @@ functions:
     events:
       - http:
           path: events/{event_id}/purchase
+          method: post
+          private: true
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${self:custom.USER_POOL_ARN}
+  createEvent:
+    handler: tasks/createEvent.handler
+    events:
+      - http:
+          path: events
           method: post
           private: true
           cors: true
