@@ -85,14 +85,14 @@ const KYDEvents = () => {
     }
   }, []);
 
-  const onPurchase = async () => {
+  const onPurchase = async (event_id) => {
     setLoadingPurchase(true);
     try {
-      const res = await actions.createPurchase("abc");
+      const res = await actions.createPurchase(event_id);
       window.location.assign(res.url);
     } catch (err) {
       setLoadingPurchase(false);
-      showErrorToast(toast, err);
+      showErrorToast(toast, err.message);
     }
   };
 
@@ -105,7 +105,7 @@ const KYDEvents = () => {
       setCandyMachine(cm);
     } catch (err) {
       if (err !== "No current user") {
-        showErrorToast(toast, err);
+        showErrorToast(toast, err.message);
       }
     }
 
@@ -329,7 +329,7 @@ const KYDEvents = () => {
                               color="black"
                               rounded="none"
                               fontSize={"lg"}
-                              onClick={onPurchase}
+                              onClick={() => onPurchase(kydEvent.id)}
                             >
                               Buy Ticket
                             </Button>

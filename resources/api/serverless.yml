@@ -50,6 +50,8 @@ provider:
           Action:
             - dynamodb:PutItem
             - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
             - dynamodb:Query
           Resource:
             - ${self:custom.TABLE_ARN}*
@@ -101,6 +103,9 @@ functions:
           authorizer:
             name: authorizer
             arn: ${self:custom.USER_POOL_ARN}
+  mintTickets:
+    handler: tasks/mintTickets.handler
+    timeout: 900
   processWebhook:
     handler: tasks/processWebhook.handler
     environment:

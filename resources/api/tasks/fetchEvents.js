@@ -96,7 +96,10 @@ const fetchEvents = async () => {
   };
 
   const { Items = [] } = await dynamo.query(params).promise();
-  return [Items.pop().metadata];
+  return Items.map((i) => {
+    i.metadata.id = i.pk.split("#").pop();
+    return i.metadata;
+  });
 };
 
 const fetchCandyMachine = async (connection) => {

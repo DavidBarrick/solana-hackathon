@@ -109,6 +109,8 @@ const createEvent = async (eventParams = {}) => {
     await createDynamoDBWallet(eventId, i);
   }
 
+  await createEventMasterWallet(eventId);
+
   return eventId;
 };
 
@@ -118,10 +120,8 @@ const createDynamoDBWallet = async (eventId, index) => {
     TableName: TABLE_NAME,
     Item: {
       pk: `EVENT#${eventId}`,
-      sk: `MINT#${mint}`,
-      data: `EVENT#OPEN#${index
-        .toString()
-        .padStart(5, "0")}#${new Date().toISOString()}`,
+      sk: `MINT#OPEN#${index.toString().padStart(5, "0")}#${mint}`,
+      data: `EVENT#OPEN#${new Date().toISOString()}`,
     },
   };
 
@@ -150,6 +150,33 @@ const createWallet = async (eventId) => {
   await s3.putObject(params).promise();
 
   params.Key = `events/${eventId}/mints/${pubkeyString}/keypair.json`;
+  params.Body = JSON.stringify(secretArray.concat(pubkeyArray));
+
+  await s3.putObject(params).promise();
+
+  return keypair.publicKey.toString();
+};
+
+const createEventMasterWallet = async (eventId) => {
+  const keypair = Keypair.generate();
+
+  const secretArray = Array.from(keypair.secretKey);
+  const pubkeyArray = Array.from(keypair.publicKey.toBytes());
+
+  const params = {
+    Bucket: S3_BUCKET,
+    Key: `events/${eventId}/master/secretkey.json`,
+    Body: JSON.stringify(secretArray),
+  };
+
+  await s3.putObject(params).promise();
+
+  params.Key = `events/${eventId}/master/pubkey.json`;
+  params.Body = JSON.stringify(pubkeyArray);
+
+  await s3.putObject(params).promise();
+
+  params.Key = `events/${eventId}/master/keypair.json`;
   params.Body = JSON.stringify(secretArray.concat(pubkeyArray));
 
   await s3.putObject(params).promise();

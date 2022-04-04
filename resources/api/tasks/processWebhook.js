@@ -33,14 +33,14 @@ module.exports.handler = async (event = {}) => {
   const { data = {} } = JSON.parse(body);
   const { object = {} } = data;
   const { metadata = {} } = object;
-  const { user_id } = metadata;
+  const { user_id, event_id, mint } = metadata;
 
   try {
     const phone_number = await fetchUser(user_id);
     console.log("User      : ", phone_number);
 
     const connection = new Connection(RPC_HOST, "confirmed");
-    const masterSecretKey = await fetchSecretKey("master");
+    const masterSecretKey = await fetchEventMaster(event_id);
     const userSecretKey = await fetchSecretKey(user_id);
 
     const masterSigner = Keypair.fromSecretKey(Buffer.from(masterSecretKey));
@@ -49,15 +49,16 @@ module.exports.handler = async (event = {}) => {
     console.log("Master Key 1: ", masterSigner.publicKey.toString());
     console.log("User Key   1: ", userSigner.publicKey.toString());
 
-    const masterWallet = new anchor.Wallet(masterSigner);
+    //const masterWallet = new anchor.Wallet(masterSigner);
     const userWallet = new anchor.Wallet(userSigner);
-    const mint = await mintTicket(connection, masterWallet, user_id);
+    //const mint = await mintTicket(connection, masterWallet, user_id);
     console.log("Minted Ticket: ", mint);
     await transferTicket(connection, masterSigner, userWallet, mint);
     await createDynamoRecords({
       user_id,
       mint,
       pubkey: userSigner.publicKey.toString(),
+      event_id,
     });
     await sendConfirmationMessage(mint, phone_number);
 
@@ -110,6 +111,24 @@ const fetchSecretKey = async (user_id) => {
     const { Body } = await s3.getObject(params).promise();
     console.log("Body: ", Body.toString());
     return JSON.parse(Body.toString());
+  } catch (err) {
+    console.log(`No wallet for user: ${user_id}`);
+    throw { status: 404, messages: `User not found` };
+  }
+};
+
+const fetchEventMaster = async (event_id) => {
+  console.log("Fetch Secret Key: ", event_id);
+  const params = {
+    Bucket: S3_BUCKET,
+    Key: `events/${event_id}/master/secretkey.json`,
+  };
+
+  try {
+    const { Body } = await s3.getObject(params).promise();
+    console.log("Body: ", Body.toString());
+    const secretKey = JSON.parse(Body.toString());
+    return Keypair.fromSecretKey(Buffer.from(secretKey));
   } catch (err) {
     console.log(`No wallet for user: ${user_id}`);
     throw { status: 404, messages: `User not found` };
@@ -193,12 +212,13 @@ const transferTicket = async (connection, masterSigner, userWallet, mint) => {
   console.log(response);
 };
 
-const createDynamoRecords = async ({ user_id, mint, pubkey }) => {
+const createDynamoRecords = async ({ user_id, mint, pubkey, event_id }) => {
   const ticketId = `TK${uuidv4()}`;
   const metadata = {
     user_id,
     pubkey,
     mint,
+    event_id,
   };
 
   const params = {
@@ -219,8 +239,8 @@ const createDynamoRecords = async ({ user_id, mint, pubkey }) => {
           TableName: TABLE_NAME,
           Item: {
             pk: `TICKET#${ticketId}`,
-            sk: `USER#${userId}`,
-            data: "#",
+            sk: `USER#${user_id}`,
+            data: `TICKET#OPEN#${new Date().toISOString()}`,
             metadata,
           },
         },
@@ -231,7 +251,18 @@ const createDynamoRecords = async ({ user_id, mint, pubkey }) => {
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `MINT#${mint}`,
-            data: "#",
+            data: `TICKET#OPEN#${new Date().toISOString()}`,
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `EVENT#${event_id}`,
+            data: `TICKET#OPEN#${new Date().toISOString()}`,
             metadata,
           },
         },
@@ -244,7 +275,7 @@ const createDynamoRecords = async ({ user_id, mint, pubkey }) => {
 
 const sendConfirmationMessage = async (mint, phone_number) => {
   const params = {
-    Message: `You've got a ticket! Check it out here: https://explorer.solana.com/address/${mint}?cluster=devnet` /* required */,
+    Message: `You've got your KYDMIAMI ticket! Sign in to https://miami.kydlabs.com to view your ticket.\n\n NFT Link: https://explorer.solana.com/address/${mint}?cluster=devnet` /* required */,
     PhoneNumber: phone_number,
   };
 

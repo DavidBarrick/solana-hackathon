@@ -140,7 +140,9 @@ const getCandyMachineState = async (
   const itemsRedeemed = state.itemsRedeemed.toNumber();
   const itemsRemaining = itemsAvailable - itemsRedeemed;
 
-  const goLiveDate = new Date(state.data.goLiveDate.muln(1000).toNumber());
+  const goLiveDate =
+    state.data.goLiveDate &&
+    new Date(state.data.goLiveDate.muln(1000).toNumber());
   return {
     id: candyMachineId,
     program,
@@ -219,9 +221,9 @@ const getCollectionAuthorityRecordPDA = async (mint, newAuthority) => {
   )[0];
 };
 
-const mintOneToken = async (candyMachine, payer) => {
+const mintOneToken = async (candyMachine, payer, mint) => {
   console.log("ID: ", candyMachine.id);
-  const mint = anchor.web3.Keypair.generate();
+  //const mint = anchor.web3.Keypair.generate();
 
   const userTokenAccountAddress = (
     await getAtaForMint(mint.publicKey, payer)
