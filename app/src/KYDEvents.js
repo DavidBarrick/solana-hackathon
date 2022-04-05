@@ -37,7 +37,6 @@ const KYDEvents = () => {
   const [processingText, setProcessingText] = useState(false);
   const [pollingInterval, setPollingInterval] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
-  const [candyMachine, setCandyMachine] = useState(null);
 
   const toast = useToast();
 
@@ -99,10 +98,9 @@ const KYDEvents = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const { events = [], pubkey, cm } = await actions.fetchEvents();
+      const { events = [], pubkey } = await actions.fetchEvents();
       setKYDEvents(events);
       setPubkey(pubkey);
-      setCandyMachine(cm);
     } catch (err) {
       if (err !== "No current user") {
         showErrorToast(toast, err.message);
@@ -339,7 +337,7 @@ const KYDEvents = () => {
                                 fontSize="sm"
                                 color={"white"}
                               >
-                                {candyMachine.itemsRemaining}
+                                {kydEvent.remaining}
                               </Text>
                               <Text
                                 fontWeight={"semibold"}
@@ -353,7 +351,7 @@ const KYDEvents = () => {
                                 fontSize="sm"
                                 color={"white"}
                               >
-                                {candyMachine.itemsAvailable}
+                                {kydEvent.capacity}
                               </Text>
                               <Text
                                 fontWeight={"semibold"}

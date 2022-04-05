@@ -33,34 +33,38 @@ module.exports.handler = async (event = {}) => {
   const { data = {} } = JSON.parse(body);
   const { object = {} } = data;
   const { metadata = {} } = object;
-  const { user_id, event_id, mint } = metadata;
+  const { user_id, event_id, mint, candy_machine_id } = metadata;
 
   try {
-    const phone_number = await fetchUser(user_id);
-    console.log("User      : ", phone_number);
+    if (candy_machine_id === CANDY_MACHINE_ID) {
+      const phone_number = await fetchUser(user_id);
+      console.log("User      : ", phone_number);
 
-    const connection = new Connection(RPC_HOST, "confirmed");
-    const masterSecretKey = await fetchEventMaster(event_id);
-    const userSecretKey = await fetchSecretKey(user_id);
+      const connection = new Connection(RPC_HOST, "confirmed");
+      const masterSecretKey = await fetchEventMaster(event_id);
+      const userSecretKey = await fetchSecretKey(user_id);
 
-    const masterSigner = Keypair.fromSecretKey(Buffer.from(masterSecretKey));
-    const userSigner = Keypair.fromSecretKey(Buffer.from(userSecretKey));
+      const masterSigner = Keypair.fromSecretKey(Buffer.from(masterSecretKey));
+      const userSigner = Keypair.fromSecretKey(Buffer.from(userSecretKey));
 
-    console.log("Master Key 1: ", masterSigner.publicKey.toString());
-    console.log("User Key   1: ", userSigner.publicKey.toString());
+      console.log("Master Key 1: ", masterSigner.publicKey.toString());
+      console.log("User Key   1: ", userSigner.publicKey.toString());
 
-    //const masterWallet = new anchor.Wallet(masterSigner);
-    const userWallet = new anchor.Wallet(userSigner);
-    //const mint = await mintTicket(connection, masterWallet, user_id);
-    console.log("Minted Ticket: ", mint);
-    await transferTicket(connection, masterSigner, userWallet, mint);
-    await createDynamoRecords({
-      user_id,
-      mint,
-      pubkey: userSigner.publicKey.toString(),
-      event_id,
-    });
-    await sendConfirmationMessage(mint, phone_number);
+      //const masterWallet = new anchor.Wallet(masterSigner);
+      const userWallet = new anchor.Wallet(userSigner);
+      //const mint = await mintTicket(connection, masterWallet, user_id);
+      console.log("Minted Ticket: ", mint);
+      await transferTicket(connection, masterSigner, userWallet, mint);
+      await createDynamoRecords({
+        user_id,
+        mint,
+        pubkey: userSigner.publicKey.toString(),
+        event_id,
+      });
+      await sendConfirmationMessage(mint, phone_number);
+    } else {
+      console.log("Invalid candy machine ID: ", candy_machine_id);
+    }
 
     return {
       statusCode: 200,
@@ -132,25 +136,6 @@ const fetchEventMaster = async (event_id) => {
   } catch (err) {
     console.log(`No wallet for user: ${user_id}`);
     throw { status: 404, messages: `User not found` };
-  }
-};
-
-const mintTicket = async (connection, masterWallet) => {
-  const myCandyMachine = await candymachine.getCandyMachineState(
-    masterWallet,
-    CANDY_MACHINE_ID,
-    connection
-  );
-
-  try {
-    const { mint } = await candymachine.mintOneToken(
-      myCandyMachine,
-      masterWallet.publicKey
-    );
-    return mint;
-  } catch (err) {
-    console.log("Failed to mint");
-    console.error(err);
   }
 };
 
@@ -264,6 +249,42 @@ const createDynamoRecords = async ({ user_id, mint, pubkey, event_id }) => {
             sk: `EVENT#${event_id}`,
             data: `TICKET#OPEN#${new Date().toISOString()}`,
             metadata,
+          },
+        },
+      },
+      {
+        Update: {
+          TableName: TABLE_NAME,
+          Key: {
+            pk: `EVENT#${event_id}`,
+            sk: `EVENT#${event_id}`,
+          },
+          UpdateExpression:
+            "SET #metadata.#claimed = #metadata.#claimed + :inc",
+          ExpressionAttributeNames: {
+            "#metadata": "metadata",
+            "#claimed": "claimed",
+          },
+          ExpressionAttributeValues: {
+            ":inc": 1,
+          },
+        },
+      },
+      {
+        Update: {
+          TableName: TABLE_NAME,
+          Key: {
+            pk: `EVENT#${event_id}`,
+            sk: `EVENT#CREATED`,
+          },
+          UpdateExpression:
+            "SET #metadata.#claimed = #metadata.#claimed + :inc",
+          ExpressionAttributeNames: {
+            "#metadata": "metadata",
+            "#claimed": "claimed",
+          },
+          ExpressionAttributeValues: {
+            ":inc": 1,
           },
         },
       },

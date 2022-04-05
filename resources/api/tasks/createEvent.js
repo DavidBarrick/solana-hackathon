@@ -74,6 +74,7 @@ const createEvent = async (eventParams = {}) => {
     seat,
     description,
     capacity,
+    claimed: 0,
   };
 
   const params = {

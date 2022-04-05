@@ -29,7 +29,6 @@ module.exports.handler = async (event = {}) => {
     const events = await fetchEvents();
     const pubkey = await fetchWallet(user_id);
     const tickets = await fetchTickets(connection, pubkey);
-    const cm = await fetchCandyMachine(connection);
 
     for (const kydEvent of events) {
       const isPurchased = tickets.find((t) => t.symbol === kydEvent.symbol);
@@ -41,7 +40,7 @@ module.exports.handler = async (event = {}) => {
       body: JSON.stringify(
         {
           success: true,
-          result: { pubkey, events, tickets, cm },
+          result: { pubkey, events, tickets },
         },
         null,
         2
@@ -98,6 +97,7 @@ const fetchEvents = async () => {
   const { Items = [] } = await dynamo.query(params).promise();
   return Items.map((i) => {
     i.metadata.id = i.pk.split("#").pop();
+    i.metadata.remaining = i.metadata.capacity - (i.metadata.claimed || 0);
     return i.metadata;
   });
 };
