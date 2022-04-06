@@ -23,6 +23,7 @@ const S3_BUCKET = process.env.S3_BUCKET;
 const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 const RPC_HOST = process.env.RPC_HOST;
 const USER_POOL_ID = process.env.USER_POOL_ID;
+const TABLE_NAME = process.env.TABLE_NAME;
 
 const sns = new AWS.SNS();
 
@@ -33,7 +34,7 @@ module.exports.handler = async (event = {}) => {
   const { data = {} } = JSON.parse(body);
   const { object = {} } = data;
   const { metadata = {} } = object;
-  const { user_id, event_id, mint, candy_machine_id } = metadata;
+  const { user_id, event_id, mint, candy_machine_id, session_id } = metadata;
 
   try {
     if (candy_machine_id === CANDY_MACHINE_ID) {
@@ -41,11 +42,9 @@ module.exports.handler = async (event = {}) => {
       console.log("User      : ", phone_number);
 
       const connection = new Connection(RPC_HOST, "confirmed");
-      const masterSecretKey = await fetchEventMaster(event_id);
-      const userSecretKey = await fetchSecretKey(user_id);
 
-      const masterSigner = Keypair.fromSecretKey(Buffer.from(masterSecretKey));
-      const userSigner = Keypair.fromSecretKey(Buffer.from(userSecretKey));
+      const masterSigner = await fetchEventMaster(event_id);
+      const userSigner = await fetchSecretKey(user_id);
 
       console.log("Master Key 1: ", masterSigner.publicKey.toString());
       console.log("User Key   1: ", userSigner.publicKey.toString());
@@ -60,6 +59,7 @@ module.exports.handler = async (event = {}) => {
         mint,
         pubkey: userSigner.publicKey.toString(),
         event_id,
+        session_id,
       });
       await sendConfirmationMessage(mint, phone_number);
     } else {
@@ -113,8 +113,8 @@ const fetchSecretKey = async (user_id) => {
 
   try {
     const { Body } = await s3.getObject(params).promise();
-    console.log("Body: ", Body.toString());
-    return JSON.parse(Body.toString());
+    const secretKey = JSON.parse(Body.toString());
+    return Keypair.fromSecretKey(Buffer.from(secretKey));
   } catch (err) {
     console.log(`No wallet for user: ${user_id}`);
     throw { status: 404, messages: `User not found` };
@@ -134,7 +134,7 @@ const fetchEventMaster = async (event_id) => {
     const secretKey = JSON.parse(Body.toString());
     return Keypair.fromSecretKey(Buffer.from(secretKey));
   } catch (err) {
-    console.log(`No wallet for user: ${user_id}`);
+    console.log(`No master wallet for event: ${event_id}`);
     throw { status: 404, messages: `User not found` };
   }
 };
@@ -161,34 +161,49 @@ const transferTicket = async (connection, masterSigner, userWallet, mint) => {
     splToken.ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  const createAtaIstruction =
-    candymachine.createAssociatedTokenAccountInstruction(
+  const fromTokenAccountData = await connection.getAccountInfo(
+    fromTokenAccount
+  );
+  const toTokenAccountData = await connection.getAccountInfo(toTokenAccount);
+  console.log("From Account Data: ", fromTokenAccountData);
+  console.log("To Account Data: ", toTokenAccountData);
+
+  let createAtaIstruction;
+  if (!toTokenAccountData) {
+    createAtaIstruction = candymachine.createAssociatedTokenAccountInstruction(
       toTokenAccount,
       masterSigner.publicKey,
       userWallet.publicKey,
       mintPubkey
     );
+    console.log("0: ", createAtaIstruction.programId.toString());
+  }
 
-  const transaction = new Transaction().add(
-    createAtaIstruction,
-    splToken.createTransferInstruction(
-      fromTokenAccount,
-      toTokenAccount,
-      masterSigner.publicKey,
-      1,
-      [],
-      splToken.TOKEN_PROGRAM_ID
-    )
+  const transferInstruction = splToken.createTransferInstruction(
+    fromTokenAccount,
+    toTokenAccount,
+    masterSigner.publicKey,
+    1,
+    [],
+    splToken.TOKEN_PROGRAM_ID
   );
+  console.log("1: ", transferInstruction.programId.toString());
+
+  const transaction = new Transaction();
+
+  if (createAtaIstruction) transaction.add(createAtaIstruction);
+  transaction.add(transferInstruction);
+
   console.log("From: ", fromTokenAccount.toString());
   console.log("To  : ", toTokenAccount.toString());
-  console.log("Transaction: ", transaction);
 
   let blockhash = (await connection.getRecentBlockhash("confirmed")).blockhash;
   console.log("Blockhash: ", blockhash);
 
   transaction.feePayer = masterSigner.publicKey;
   transaction.recentBlockhash = blockhash;
+
+  console.log("Transaction: ", transaction);
 
   const response = await sendAndConfirmTransaction(connection, transaction, [
     masterSigner,
@@ -197,13 +212,20 @@ const transferTicket = async (connection, masterSigner, userWallet, mint) => {
   console.log(response);
 };
 
-const createDynamoRecords = async ({ user_id, mint, pubkey, event_id }) => {
+const createDynamoRecords = async ({
+  user_id,
+  mint,
+  pubkey,
+  event_id,
+  session_id,
+}) => {
   const ticketId = `TK${uuidv4()}`;
   const metadata = {
     user_id,
     pubkey,
     mint,
     event_id,
+    session_id,
   };
 
   const params = {
@@ -248,6 +270,17 @@ const createDynamoRecords = async ({ user_id, mint, pubkey, event_id }) => {
             pk: `TICKET#${ticketId}`,
             sk: `EVENT#${event_id}`,
             data: `TICKET#OPEN#${new Date().toISOString()}`,
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `SESSION#${session_id}`,
+            data: `TICKET#COMPLETE#${new Date().toISOString()}`,
             metadata,
           },
         },

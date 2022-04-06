@@ -275,6 +275,7 @@ const createCheckoutSession = async (
         mint,
         session_id,
         candy_machine_id: CANDY_MACHINE_ID,
+        event_id: kydEvent.id,
       },
     },
     {

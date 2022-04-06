@@ -64,7 +64,6 @@ const fetchSecretKey = async (event_id, path) => {
 
   try {
     const { Body } = await s3.getObject(params).promise();
-    console.log("Body: ", Body.toString());
     const secretKey = JSON.parse(Body.toString());
     return Keypair.fromSecretKey(Buffer.from(secretKey));
   } catch (err) {
@@ -80,14 +79,14 @@ const fetchEventMints = async (event_id) => {
     ExpressionAttributeNames: {
       "#pk": "pk",
       "#sk": "sk",
-      "#minted": "minted",
+      //"#minted": "minted",
     },
     ExpressionAttributeValues: {
       ":pk": `EVENT#${event_id}`,
       ":sk": `MINT#`,
-      ":true": true,
+      //":true": true,
     },
-    FilterExpression: "#minted <> :true",
+    //FilterExpression: "#minted <> :true",
   };
 
   console.log("Params: ", JSON.stringify(params, null, 2));
@@ -129,6 +128,8 @@ const mintTicket = async (connection, masterKeypair, mint) => {
     CANDY_MACHINE_ID,
     connection
   );
+
+  console.log("CM: ", JSON.stringify(myCandyMachine.state));
 
   try {
     await candymachine.mintOneToken(

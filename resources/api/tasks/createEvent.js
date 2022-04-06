@@ -5,17 +5,17 @@ const { v4: uuidv4 } = require("uuid");
 const s3 = new AWS.S3();
 
 const testEvent = {
-  title: "KYD Miami",
+  title: "KYDMIAMI - Yacht Mixer",
   symbol: "KYDMIAMI",
-  date: "April 8th, 2022",
-  time: "7:00PM",
+  date: "April 9th, 2022",
+  time: "2pm - 6pm",
   image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
-  location: "Soho House",
+  location: "On a Yacht",
   price: 5,
   seat: "GA",
   capacity: 20,
   description:
-    "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.",
+    "Enjoy the sunset with an open bar, cerveza's, great music and people as we combine culture in web3 in an intimate experience only the kyd team can deliver. All proceeds of this event are donated to SAVETHECHILDREN.",
 };
 
 const TABLE_NAME = process.env.TABLE_NAME;

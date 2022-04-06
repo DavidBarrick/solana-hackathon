@@ -6,13 +6,8 @@ const { PublicKey, Connection, TokenAccount } = require("@solana/web3.js");
 const { Metadata } = require("@metaplex-foundation/mpl-token-metadata");
 
 const { TOKEN_PROGRAM_ID, getAccount } = require("@solana/spl-token");
-const { KYD_EVENTS } = require("./helpers/utils");
-
-const candymachine = require("./helpers/candymachine");
 
 const S3_BUCKET = process.env.S3_BUCKET;
-const RPC_HOST = process.env.RPC_HOST;
-const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 const TABLE_NAME = process.env.TABLE_NAME;
 
 module.exports.handler = async (event = {}) => {
@@ -24,14 +19,12 @@ module.exports.handler = async (event = {}) => {
   const { sub: user_id } = claims;
 
   try {
-    const connection = new Connection(RPC_HOST, "confirmed");
-
     const events = await fetchEvents();
     const pubkey = await fetchWallet(user_id);
-    const tickets = await fetchTickets(connection, pubkey);
+    const tickets = await fetchDBTickets(user_id);
 
     for (const kydEvent of events) {
-      const isPurchased = tickets.find((t) => t.symbol === kydEvent.symbol);
+      const isPurchased = tickets.find((t) => t.event_id === kydEvent.id);
       kydEvent.is_purchased = !!isPurchased;
     }
 
@@ -98,18 +91,39 @@ const fetchEvents = async () => {
   return Items.map((i) => {
     i.metadata.id = i.pk.split("#").pop();
     i.metadata.remaining = i.metadata.capacity - (i.metadata.claimed || 0);
+    i.metadata.sold_out = i.metadata.capacity === i.metadata.claimed;
     return i.metadata;
   });
 };
 
-const fetchCandyMachine = async (connection) => {
-  const cm = await candymachine.getCandyMachineState(
-    null,
-    CANDY_MACHINE_ID,
-    connection
-  );
+const fetchDBTickets = async (user_id) => {
+  const d = new Date();
+  d.setHours(d.getHours() - 3);
+  const params = {
+    TableName: TABLE_NAME,
+    IndexName: "sk-data-index",
+    KeyConditionExpression: "#sk = :sk AND #data BETWEEN :start AND :end",
+    ExpressionAttributeNames: {
+      "#sk": "sk",
+      "#data": "data",
+    },
+    ExpressionAttributeValues: {
+      ":sk": `USER#${user_id}`,
+      ":start": `TICKET#OPEN#${d.toISOString()}`,
+      ":end": `TICKET#P`,
+    },
+  };
 
-  return cm.state;
+  console.log("Params: ", JSON.stringify(params, null, 2));
+
+  const { Items = [] } = await dynamo.query(params).promise();
+
+  Items.forEach((i) => {
+    i.id = i.pk.split("#").pop();
+    i.event_id = i.metadata.event_id;
+  });
+
+  return Items;
 };
 
 const fetchTickets = async (connection, pubkey) => {

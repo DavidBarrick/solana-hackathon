@@ -12,7 +12,7 @@ import {
 import { Auth, input } from "aws-amplify";
 import { showErrorToast, AUTH_STATES } from "./utils";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
-import kydfull from "./logorhombus.svg";
+import kydfull from "./logomiami2.svg";
 
 const SignIn = ({ authState }) => {
   const toast = useToast();
@@ -114,7 +114,7 @@ const SignIn = ({ authState }) => {
       h="100vh"
       p={5}
     >
-      <VStack maxW="lg" h="100%" spacing={10} justifyContent="center" p={5}>
+      <VStack maxW="lg" h="100%" spacing={0} justifyContent="center" p={5}>
         <Image
           maxW={"70%"}
           src={kydfull}
@@ -134,7 +134,7 @@ const SignIn = ({ authState }) => {
                       fontWeight={"bold"}
                       fontSize={"3xl"}
                     >
-                      Enter phone.
+                      Enter Your Number
                     </Text>
                     <Text
                       letterSpacing={"1px"}
@@ -143,7 +143,7 @@ const SignIn = ({ authState }) => {
                       fontWeight={"semibold"}
                       fontSize={"xl"}
                     >
-                      Welcome to the future of tickets.
+                      Please enter your number to register / sign-in.
                     </Text>
                   </Stack>
 
@@ -172,7 +172,7 @@ const SignIn = ({ authState }) => {
                     isLoading={loading}
                     onClick={onSignIn}
                   >
-                    Sign In
+                    Enter
                   </Button>
                 </Stack>
               </Route>
@@ -184,7 +184,7 @@ const SignIn = ({ authState }) => {
                       fontWeight={"bold"}
                       fontSize={"3xl"}
                     >
-                      Enter code.
+                      Verification Code
                     </Text>
                     <Text
                       letterSpacing={"1px"}
@@ -193,7 +193,7 @@ const SignIn = ({ authState }) => {
                       fontWeight={"semibold"}
                       fontSize={"xl"}
                     >
-                      Check your texts for a verification code.
+                      Check your texts for a verification code
                     </Text>
                   </Stack>
 
