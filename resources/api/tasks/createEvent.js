@@ -11,9 +11,11 @@ const testEvent = {
   time: "2pm - 6pm",
   image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
   location: "On a Yacht",
+  location_link: "",
   price: 5,
   seat: "GA",
   capacity: 20,
+  candy_machine_id: "",
   description:
     "Enjoy the sunset with an open bar, cerveza's, great music and people as we combine culture in web3 in an intimate experience only the kyd team can deliver. All proceeds of this event are donated to SAVETHECHILDREN.",
 };
@@ -62,6 +64,7 @@ const createEvent = async (eventParams = {}) => {
     seat,
     description,
     capacity,
+    candy_machine_id,
   } = eventParams;
   const metadata = {
     title,
@@ -75,6 +78,7 @@ const createEvent = async (eventParams = {}) => {
     description,
     capacity,
     claimed: 0,
+    candy_machine_id,
   };
 
   const params = {
@@ -96,6 +100,17 @@ const createEvent = async (eventParams = {}) => {
           Item: {
             pk: `EVENT#${eventId}`,
             sk: `EVENT#CREATED`,
+            data: `EVENT#OPEN#${new Date().toISOString()}`,
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `EVENT#${eventId}`,
+            sk: `CM#${candy_machine_id}`,
             data: `EVENT#OPEN#${new Date().toISOString()}`,
             metadata,
           },
