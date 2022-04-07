@@ -9,7 +9,7 @@ const TABLE_NAME = process.env.TABLE_NAME;
 const S3_BUCKET = process.env.S3_BUCKET;
 const RPC_HOST = process.env.RPC_HOST;
 
-const EVENT_ID = "EV0b74e7ac-9d47-41ae-b31b-4265b1edd822";
+const EVENT_ID = "EV5d63af5a-f6a2-404b-94f0-da7ce676878d";
 const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 
 module.exports.handler = async (event = {}) => {
@@ -132,11 +132,16 @@ const mintTicket = async (connection, masterKeypair, mint) => {
   console.log("CM: ", JSON.stringify(myCandyMachine.state));
 
   try {
-    await candymachine.mintOneToken(
-      myCandyMachine,
-      masterWallet.publicKey,
-      mint
-    );
+    const mintAccount = await connection.getAccountInfo(mint.publicKey);
+    if (!mintAccount) {
+      await candymachine.mintOneToken(
+        myCandyMachine,
+        masterWallet.publicKey,
+        mint
+      );
+    } else {
+      console.log("Found Mint Already: ", mint.publicKey);
+    }
   } catch (err) {
     console.log("Failed to mint");
     console.error(err);

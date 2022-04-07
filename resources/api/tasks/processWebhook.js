@@ -52,8 +52,6 @@ module.exports.handler = async (event = {}) => {
       //const masterWallet = new anchor.Wallet(masterSigner);
       const userWallet = new anchor.Wallet(userSigner);
       //const mint = await mintTicket(connection, masterWallet, user_id);
-      console.log("Minted Ticket: ", mint);
-      await transferTicket(connection, masterSigner, userWallet, mint);
       await createDynamoRecords({
         user_id,
         mint,
@@ -61,7 +59,17 @@ module.exports.handler = async (event = {}) => {
         event_id,
         session_id,
       });
-      await sendConfirmationMessage(mint, phone_number);
+
+      let did_succeed = false;
+      try {
+        await transferTicket(connection, masterSigner, userWallet, mint);
+        console.log("Minted Ticket: ", mint);
+        did_succeed = true;
+      } catch (err) {
+        console.error(err);
+      }
+
+      await sendConfirmationMessage(mint, phone_number, did_succeed);
     } else {
       console.log("Invalid candy machine ID: ", candy_machine_id);
     }
@@ -327,9 +335,13 @@ const createDynamoRecords = async ({
   return dynamo.transactWrite(params).promise();
 };
 
-const sendConfirmationMessage = async (mint, phone_number) => {
+const sendConfirmationMessage = async (mint, phone_number, did_succeed) => {
   const params = {
-    Message: `You've got your KYDMIAMI ticket! Sign in to https://miami.kydlabs.com to view your ticket.\n\n NFT Link: https://explorer.solana.com/address/${mint}?cluster=devnet` /* required */,
+    Message: `You've got your KYDMIAMI ticket! Sign in to https://miami.kydlabs.com to view your ticket.${
+      did_succeed
+        ? `\n\n NFT Link: https://explorer.solana.com/address/${mint}`
+        : ""
+    }`,
     PhoneNumber: phone_number,
   };
 

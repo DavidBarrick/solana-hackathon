@@ -1,10 +1,10 @@
 {
-  "name": "KYDMIAMI - Yacht Mixer #3",
+  "name": "KYDMIAMI - Yacht Mixer #24",
   "symbol": "KYDMIAMI",
   "description": "Enjoy the sunset with an open bar, cerveza's, great music and people as we combine culture in web3 in an intimate experience only the kyd team can deliver. All proceeds of this event are donated to SAVETHECHILDREN.",
   "seller_fee_basis_points": 1000,
-  "image": "3.png",
-  "edition": 3,
+  "image": "24.png",
+  "edition": 24,
   "attributes": [
     {
       "trait_type": "Background",
@@ -14,7 +14,7 @@
   "properties": {
     "files": [
       {
-        "uri": "3.png",
+        "uri": "24.png",
         "type": "image/png"
       }
     ],

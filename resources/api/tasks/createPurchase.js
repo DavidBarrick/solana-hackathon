@@ -4,7 +4,6 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
 const { v4: uuidv4 } = require("uuid");
 
 const TABLE_NAME = process.env.TABLE_NAME;
-const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 
 module.exports.handler = async (event = {}) => {
   console.log("Event: ", JSON.stringify(event, null, 2));
@@ -274,7 +273,7 @@ const createCheckoutSession = async (
         user_id,
         mint,
         session_id,
-        candy_machine_id: CANDY_MACHINE_ID,
+        candy_machine_id: kydEvent.candy_machine_id,
         event_id: kydEvent.id,
       },
     },

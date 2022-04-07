@@ -108,6 +108,7 @@ functions:
     timeout: 900
   processWebhook:
     handler: tasks/processWebhook.handler
+    timeout: 120
     environment:
       STRIPE_SK: ${self:custom.secrets.STRIPE_SK}
     events:

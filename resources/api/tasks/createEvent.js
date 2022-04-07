@@ -9,13 +9,14 @@ const testEvent = {
   symbol: "KYDMIAMI",
   date: "April 9th, 2022",
   time: "2pm - 6pm",
-  image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
+  image: "https://miami.kydlabs.com/assets/poster1.jpeg",
   location: "On a Yacht",
   location_link: "",
   price: 5,
   seat: "GA",
-  capacity: 20,
-  candy_machine_id: "",
+  capacity: 25,
+  claimed: 0,
+  candy_machine_id: "Ecge52Czojtz3Mnsq25JwCJtxYtmrYCfS5amoggwNM4A",
   description:
     "Enjoy the sunset with an open bar, cerveza's, great music and people as we combine culture in web3 in an intimate experience only the kyd team can deliver. All proceeds of this event are donated to SAVETHECHILDREN.",
 };
