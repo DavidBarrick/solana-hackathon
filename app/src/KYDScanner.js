@@ -12,7 +12,7 @@ const KYDScanner = () => {
       return "black";
     }
 
-    return data && data.is_valid ? "green" : "red";
+    return data && data.is_valid ? "green.500" : "red.500";
   };
 
   const successfulScan = async function (code) {
@@ -20,12 +20,12 @@ const KYDScanner = () => {
     try {
       const res = await actions.scanTicketCode(code);
       setData(res);
-      setLoading(false);
       console.log({ res });
     } catch (err) {
       console.log(err);
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -49,6 +49,7 @@ const KYDScanner = () => {
       >
         {!loading && (
           <QrReader
+            constraints={{ facingMode: "environment" }}
             onResult={(result, error) => {
               if (!!result) {
                 if (!loading) successfulScan(result.text);
@@ -75,11 +76,6 @@ const KYDScanner = () => {
             borderColor="gray.500"
             borderStyle="solid"
           >
-            {!!data && (
-              <Text lineHeight={"5"} fontSize={"s"} fontWeight="semibold">
-                Name: {data.name}
-              </Text>
-            )}
             {!!data && data.valid_reason && (
               <Text lineHeight={"5"} fontSize={"s"} fontWeight="semibold">
                 Valid: {data.valid_reason}
@@ -94,7 +90,7 @@ const KYDScanner = () => {
                   wordWrap: "break-word",
                 }}
               >
-                Ticket: {data.ticket}
+                Ticket: {data.mint}
               </Text>
             )}
             {!data && (

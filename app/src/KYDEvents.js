@@ -42,7 +42,6 @@ const KYDEvents = () => {
   const [qrCodeRefreshInterval, setQRCodeRefreshInterval] = useState(null);
 
   const [retryCount, setRetryCount] = useState(0);
-
   const toast = useToast();
 
   const urlSearchParams = new URLSearchParams(window.location.search);
@@ -72,7 +71,7 @@ const KYDEvents = () => {
     const refreshContent = () => {
       const d = new Date();
 
-      const contentToHash = `${pubkey}#${kydEvent.id}#${d.toISOString()}`;
+      const contentToHash = `${pubkey}#${d.toISOString()}`;
       const checksum = generateChecksum(contentToHash);
       const updatedContent = `${contentToHash}#${checksum}`;
       setQRCodeContent(updatedContent);

@@ -19,6 +19,8 @@ const { v4: uuidv4 } = require("uuid");
 
 const cognito = new AWS.CognitoIdentityServiceProvider();
 
+const EVENT_DATE = new Date("2022-04-09T18:00:00.000Z");
+
 const S3_BUCKET = process.env.S3_BUCKET;
 const CANDY_MACHINE_ID = process.env.CANDY_MACHINE_ID;
 const RPC_HOST = process.env.RPC_HOST;
@@ -255,7 +257,7 @@ const createDynamoRecords = async ({
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `USER#${user_id}`,
-            data: `TICKET#OPEN#${new Date().toISOString()}`,
+            data: `TICKET#OPEN#${EVENT_DATE.toISOString()}`,
             metadata,
           },
         },
@@ -266,7 +268,7 @@ const createDynamoRecords = async ({
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `MINT#${mint}`,
-            data: `TICKET#OPEN#${new Date().toISOString()}`,
+            data: `TICKET#OPEN#${EVENT_DATE.toISOString()}`,
             metadata,
           },
         },
@@ -277,7 +279,7 @@ const createDynamoRecords = async ({
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `EVENT#${event_id}`,
-            data: `TICKET#OPEN#${new Date().toISOString()}`,
+            data: `TICKET#OPEN#${EVENT_DATE.toISOString()}`,
             metadata,
           },
         },
@@ -288,7 +290,18 @@ const createDynamoRecords = async ({
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `SESSION#${session_id}`,
-            data: `TICKET#COMPLETE#${new Date().toISOString()}`,
+            data: `TICKET#COMPLETE#${EVENT_DATE.toISOString()}`,
+            metadata,
+          },
+        },
+      },
+      {
+        Put: {
+          TableName: TABLE_NAME,
+          Item: {
+            pk: `TICKET#${ticketId}`,
+            sk: `WALLET#${pubkey}`,
+            data: `TICKET#COMPLETE#${EVENT_DATE.toISOString()}`,
             metadata,
           },
         },
