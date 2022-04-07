@@ -301,7 +301,7 @@ const createDynamoRecords = async ({
           Item: {
             pk: `TICKET#${ticketId}`,
             sk: `WALLET#${pubkey}`,
-            data: `TICKET#COMPLETE#${EVENT_DATE.toISOString()}`,
+            data: `TICKET#OPEN#${EVENT_DATE.toISOString()}`,
             metadata,
           },
         },
