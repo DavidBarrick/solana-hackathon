@@ -1,13 +1,14 @@
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
 const dynamo = new AWS.DynamoDB.DocumentClient();
+const cognito = new AWS.CognitoIdentityServiceProvider();
 
-const candymachine = require("./helpers/candymachine");
+const { Keypair } = require("@solana/web3.js");
 
 const md5 = require("crypto-js/md5");
 
 const S3_BUCKET = process.env.S3_BUCKET;
-const RPC_HOST = process.env.RPC_HOST;
+const USER_POOL_ID = process.env.USER_POOL_ID;
 const TABLE_NAME = process.env.TABLE_NAME;
 
 const EVENT_ID = "EV5d63af5a-f6a2-404b-94f0-da7ce676878d";
@@ -26,23 +27,35 @@ module.exports.handler = async (event = {}) => {
 
   try {
     let result = { is_valid: false };
-    const d = new Date(iso_date);
-    const thirtySecondsAgo = new Date();
-    thirtySecondsAgo.setSeconds(d.getSeconds() - 30);
+    if (code.substring(0, 1) === "+") {
+      const { pubkey: _userPubkey } = await fetchUser(code);
 
-    console.log("Compare: ", [pubkey, iso_date].join("#"));
-    const checksumCompare = md5([pubkey, iso_date].join("#")).toString();
-    console.log("Checksum: ", checksumCompare);
-    if (checksum !== checksumCompare) {
-      result.valid_reason = "Invalid checksum. Might be screenshot.";
-    } else if (d.getTime() > thirtySecondsAgo && d.getTime() < Date.now()) {
       const { is_valid, mint, valid_reason } = await fetchTicket(
-        pubkey,
+        _userPubkey,
         EVENT_ID
       );
       result.is_valid = is_valid;
       result.valid_reason = valid_reason;
       result.mint = mint;
+    } else {
+      const d = new Date(iso_date);
+      const thirtySecondsAgo = new Date();
+      thirtySecondsAgo.setSeconds(d.getSeconds() - 30);
+
+      console.log("Compare: ", [pubkey, iso_date].join("#"));
+      const checksumCompare = md5([pubkey, iso_date].join("#")).toString();
+      console.log("Checksum: ", checksumCompare);
+      if (checksum !== checksumCompare) {
+        result.valid_reason = "Invalid checksum. Might be screenshot.";
+      } else if (d.getTime() > thirtySecondsAgo && d.getTime() < Date.now()) {
+        const { is_valid, mint, valid_reason } = await fetchTicket(
+          pubkey,
+          EVENT_ID
+        );
+        result.is_valid = is_valid;
+        result.valid_reason = valid_reason;
+        result.mint = mint;
+      }
     }
 
     console.log("Result: ", JSON.stringify(result));
@@ -74,6 +87,41 @@ module.exports.handler = async (event = {}) => {
         "Access-Control-Allow-Origin": "*",
       },
     };
+  }
+};
+
+const fetchUser = async (phone_number) => {
+  const params = {
+    Username: phone_number,
+    UserPoolId: USER_POOL_ID,
+  };
+
+  const { Username } = await cognito.adminGetUser(params).promise();
+  if (Username) {
+    const pubkey = await fetchUserPubkey(Username);
+    console.log("User Pubkey: ", pubkey.publicKey.toString());
+    return {
+      user_id: Username,
+      pubkey: pubkey.publicKey.toString(),
+    };
+  }
+  throw { status: 404, message: `User not found` };
+};
+
+const fetchUserPubkey = async (user_id) => {
+  console.log("Fetch Secret Key: ", user_id);
+  const params = {
+    Bucket: S3_BUCKET,
+    Key: `${user_id}/secretkey.json`,
+  };
+
+  try {
+    const { Body } = await s3.getObject(params).promise();
+    const secretKey = JSON.parse(Body.toString());
+    return Keypair.fromSecretKey(Buffer.from(secretKey));
+  } catch (err) {
+    console.log(`No master wallet for user: ${user_id}`);
+    throw { status: 404, messages: `User not found` };
   }
 };
 

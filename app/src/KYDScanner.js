@@ -1,11 +1,20 @@
-import React, { useState } from "react";
-import { Text, VStack, Spinner, Stack } from "@chakra-ui/react";
+import React, { useState, useRef } from "react";
+import {
+  Text,
+  VStack,
+  Spinner,
+  Stack,
+  Input,
+  useRadio,
+  Button,
+} from "@chakra-ui/react";
 import { QrReader } from "react-qr-reader";
 import actions from "./actions";
 
 const KYDScanner = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef(null);
 
   const isValid = () => {
     if (!data) {
@@ -28,6 +37,12 @@ const KYDScanner = () => {
     setLoading(false);
   };
 
+  const processPhone = (phone_number) => {
+    console.log(phone_number);
+    phone_number = `+1${phone_number}`;
+    successfulScan(phone_number);
+  };
+
   return (
     <VStack
       minH="100vh"
@@ -38,8 +53,8 @@ const KYDScanner = () => {
       pt={"50px"}
     >
       <Stack
-        minW="xs"
-        maxW="xs"
+        w="100%"
+        maxW="lg"
         h="full"
         bg="black"
         p="3"
@@ -93,11 +108,25 @@ const KYDScanner = () => {
                 Ticket: {data.mint}
               </Text>
             )}
-            {!data && (
+            {/*!data && (
               <Text lineHeight={"5"} fontSize={"s"} fontWeight="semibold">
                 Scan to start
               </Text>
-            )}
+            )*/}
+            <Input
+              h="50px"
+              placeholder="phone"
+              inputMode="tel"
+              ref={inputRef}
+            />
+            <Button
+              onClick={() => processPhone(inputRef.current.value)}
+              w="100%"
+              color="black"
+              bg="#ffdc29"
+            >
+              Search
+            </Button>
           </VStack>
         )}
       </Stack>

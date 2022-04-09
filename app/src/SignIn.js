@@ -159,6 +159,7 @@ const SignIn = ({ authState }) => {
                     borderBottomWidth={"3px"}
                     bg="white"
                     type={"number"}
+                    inputMode="tel"
                   />
 
                   <Button
@@ -210,6 +211,7 @@ const SignIn = ({ authState }) => {
                     bg="white"
                     color="black"
                     type={"number"}
+                    inputMode="tel"
                   />
 
                   <Button

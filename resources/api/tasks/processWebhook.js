@@ -54,13 +54,17 @@ module.exports.handler = async (event = {}) => {
       //const masterWallet = new anchor.Wallet(masterSigner);
       const userWallet = new anchor.Wallet(userSigner);
       //const mint = await mintTicket(connection, masterWallet, user_id);
-      await createDynamoRecords({
-        user_id,
-        mint,
-        pubkey: userSigner.publicKey.toString(),
-        event_id,
-        session_id,
-      });
+      const ticketDDBExists = await fetchTicket(mint);
+
+      if (!ticketDDBExists) {
+        await createDynamoRecords({
+          user_id,
+          mint,
+          pubkey: userSigner.publicKey.toString(),
+          event_id,
+          session_id,
+        });
+      }
 
       let did_succeed = false;
       try {
@@ -71,7 +75,9 @@ module.exports.handler = async (event = {}) => {
         console.error(err);
       }
 
-      await sendConfirmationMessage(mint, phone_number, did_succeed);
+      if (!ticketDDBExists) {
+        await sendConfirmationMessage(mint, phone_number, did_succeed);
+      }
     } else {
       console.log("Invalid candy machine ID: ", candy_machine_id);
     }
@@ -220,6 +226,24 @@ const transferTicket = async (connection, masterSigner, userWallet, mint) => {
   ]);
 
   console.log(response);
+};
+
+const fetchTicket = async (mint) => {
+  const params = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "#sk = :sk AND begins_with(#data,:data)",
+    ExpressionAttributeNames: {
+      "#sk": "sk",
+      "#data": "data",
+    },
+    ExpressionAttributeValues: {
+      ":sk": `MINT#${mint}`,
+      ":data": "TICKET#OPEN#",
+    },
+  };
+
+  const { Items = [] } = await dynamo.query(params).promise();
+  return Items.length > 0;
 };
 
 const createDynamoRecords = async ({
