@@ -37,11 +37,12 @@ const KYDEvents = () => {
   const [processingText, setProcessingText] = useState(false);
   const [pollingInterval, setPollingInterval] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
-  const [candyMachine, setCandyMachine] = useState(null);
+  const [candyMachine, setCandyMachine] = useState({});
 
   const toast = useToast();
 
   const urlSearchParams = new URLSearchParams(window.location.search);
+  const processingParam = urlSearchParams.get("processing");
 
   const startPolling = useCallback(() => {
     const interval = setInterval(async () => {
@@ -75,14 +76,15 @@ const KYDEvents = () => {
   }, [retryCount, pollingInterval]);
 
   useEffect(() => {
-    const processingParam = urlSearchParams.get("processing");
-    if (processingParam) {
+    fetchEvents();
+
+    /*if (processingParam) {
       setProcessingText(decodeURIComponent(processingParam));
       setLoading(true);
       startPolling();
     } else {
       fetchEvents();
-    }
+    }*/
   }, []);
 
   const onPurchase = async () => {
@@ -298,7 +300,7 @@ const KYDEvents = () => {
                       </Stack>
                       {/*kydEvent.is_purchased && <Text>✅ Purchased</Text>*/}
                       <Stack pb={4} px={4}>
-                        {kydEvent.is_purchased && (
+                        {(kydEvent.is_purchased || processingParam) && (
                           <Button
                             h="50px"
                             w="60%"
@@ -317,7 +319,7 @@ const KYDEvents = () => {
                             View Ticket
                           </Button>
                         )}
-                        {!kydEvent.is_purchased && (
+                        {!kydEvent.is_purchased && !processingParam && (
                           <Stack mt={2} spacing={0}>
                             <Button
                               isLoading={loadingPurchase}
