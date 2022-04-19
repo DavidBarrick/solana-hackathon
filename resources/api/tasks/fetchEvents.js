@@ -98,7 +98,7 @@ const fetchEvents = async () => {
 
 const fetchDBTickets = async (user_id) => {
   const d = new Date();
-  d.setHours(d.getHours() - 3);
+  d.setHours(d.getHours() - 12);
   const params = {
     TableName: TABLE_NAME,
     IndexName: "sk-data-index",
