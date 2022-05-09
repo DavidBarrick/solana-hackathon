@@ -198,7 +198,7 @@ const KYDEvents = () => {
     >
       <Image
         src={kydmark}
-        maxW={["15%", "150px"]}
+        maxW={["15%", "100px"]}
         onClick={() =>
           window.open("https://github.com/davidbarrick/solana-hackathon")
         }

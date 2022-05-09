@@ -128,7 +128,7 @@ const KYD_EVENTS = [
     symbol: "KYDNYC",
     date: "March 18th, 2022",
     time: "7:00PM",
-    image: "https://staging.draggos.xyz/assets/kyd_01.JPG",
+    image: "https://demo.kydlabs.com/assets/rl-full-2.png",
     location: "Madison Square Garden",
     price: 50,
     seat: "GA",

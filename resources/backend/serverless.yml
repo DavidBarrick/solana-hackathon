@@ -29,6 +29,23 @@ resources:
     S3Bucket:
       Type: AWS::S3::Bucket
       DeletionPolicy: Retain
+    KMSKey:
+      Type: AWS::KMS::Key
+      Properties:
+        Description: An example symmetric encryption KMS key
+        MultiRegion: true
+        Enabled: true
+        KeyPolicy:
+          Version: "2012-10-17"
+          Id: key-default-1
+          Statement:
+            - Sid: Enable IAM User Permissions
+              Effect: Allow
+              Principal:
+                AWS: "arn:aws:iam::194896409879:root"
+              Action:
+                - "kms:*"
+              Resource: "*"
     DynamoTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
@@ -127,3 +144,9 @@ resources:
     S3Bucket:
       Value:
         Ref: S3Bucket
+    KMSKeyId:
+      Value:
+        Ref: KMSKey
+    KMSKeyArn:
+      Value:
+        Fn::GetAtt: [KMSKey, Arn]

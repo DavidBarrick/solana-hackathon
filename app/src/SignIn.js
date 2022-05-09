@@ -12,7 +12,7 @@ import {
 import { Auth, input } from "aws-amplify";
 import { showErrorToast, AUTH_STATES } from "./utils";
 import { Redirect, Route, Switch, useHistory } from "react-router-dom";
-import kydfull from "./logorhombus.svg";
+import kydfull from "./rolling2-c.png";
 
 const SignIn = ({ authState }) => {
   const toast = useToast();
@@ -114,9 +114,9 @@ const SignIn = ({ authState }) => {
       h="100vh"
       p={5}
     >
-      <VStack maxW="lg" h="100%" spacing={10} justifyContent="center" p={5}>
+      <VStack maxW="lg" h="100%" spacing={1} justifyContent="center" p={5}>
         <Image
-          maxW={"70%"}
+          maxW={"100%"}
           src={kydfull}
           onClick={() =>
             window.open("https://github.com/davidbarrick/solana-hackathon")
