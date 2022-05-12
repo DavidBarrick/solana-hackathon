@@ -124,16 +124,16 @@ function createAssociatedTokenAccountInstruction(
 
 const KYD_EVENTS = [
   {
-    title: "KYDNYC Launch Party",
-    symbol: "KYDNYC",
-    date: "March 18th, 2022",
+    title: "Rolling Loud NYC",
+    symbol: "RLNYC",
+    date: "March 18th, 2023",
     time: "7:00PM",
     image: "https://demo.kydlabs.com/assets/rl-full-2.png",
     location: "Madison Square Garden",
-    price: 50,
+    price: 10,
     seat: "GA",
     description:
-      "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.",
+      "Rolling Loud is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden.",
   },
 ];
 

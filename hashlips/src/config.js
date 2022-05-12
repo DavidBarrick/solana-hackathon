@@ -5,13 +5,13 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const network = NETWORK.sol;
 
 // General metadata for Ethereum
-const namePrefix = "KYDNYC Launch Party Ticket";
+const namePrefix = "Rolling Loud GA Ticket";
 const description =
-  "KYD is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden. Come for the mems.";
+  "Rolling Loud is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden.";
 const baseUri = "ipfs://NewUriToReplace";
 
 const solanaMetadata = {
-  symbol: "KYDNYC",
+  symbol: "RLNYC",
   seller_fee_basis_points: 1000, // Define how much % you want from secondary market sales 1000 = 10%
   creators: [
     {
@@ -28,7 +28,7 @@ const solanaMetadata = {
 // If you have selected Solana then the collection starts from 0 automatically
 const layerConfigurations = [
   {
-    growEditionSizeTo: 100,
+    growEditionSizeTo: 200,
     layersOrder: [{ name: "Background" }],
   },
 ];
@@ -38,8 +38,8 @@ const shuffleLayerConfigurations = false;
 const debugLogs = false;
 
 const format = {
-  width: 1024,
-  height: 1024,
+  width: 1000,
+  height: 1000,
   smoothing: false,
 };
 

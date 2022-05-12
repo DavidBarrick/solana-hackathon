@@ -1,0 +1,33 @@
+{
+  "name": "Rolling Loud GA Ticket #130",
+  "symbol": "RLNYC",
+  "description": "Rolling Loud is proud to announce our offical launch party at NYC's greatest venue: Madison Square Garden.",
+  "seller_fee_basis_points": 1000,
+  "image": "130.png",
+  "edition": 130,
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Ticket"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "130.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "5tMWkVwy8UrRBaXFYgPTVzLxD4VdctXVnqtcaxLGsziK",
+        "share": 30
+      },
+      {
+        "address": "2i9pcQj3z2YyPa2yUH2tCb6yTjPdBStZ9i5yKJLBASGk",
+        "share": 70
+      }
+    ]
+  }
+}

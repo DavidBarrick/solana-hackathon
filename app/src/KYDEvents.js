@@ -33,6 +33,7 @@ const KYDEvents = () => {
   const [loadingPurchase, setLoadingPurchase] = useState(null);
 
   const [pubkey, setPubkey] = useState(null);
+  const [qrCodeContent, setQRCodeContent] = useState("");
   const [walletModal, setWalletModal] = useState(false);
   const [processingText, setProcessingText] = useState(false);
   const [pollingInterval, setPollingInterval] = useState(null);
@@ -76,6 +77,14 @@ const KYDEvents = () => {
   }, [retryCount, pollingInterval]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setQRCodeContent(`${pubkey}#${new Date().toISOString()}`);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [pubkey]);
+
+  useEffect(() => {
     fetchEvents();
 
     /*if (processingParam) {
@@ -104,6 +113,7 @@ const KYDEvents = () => {
       const { events = [], pubkey, cm } = await actions.fetchEvents();
       setKYDEvents(events);
       setPubkey(pubkey);
+      setQRCodeContent(`${pubkey}#${new Date().toISOString()}`);
       setCandyMachine(cm);
     } catch (err) {
       if (err !== "No current user") {
@@ -118,7 +128,9 @@ const KYDEvents = () => {
 
   const renderQRCode = (kydEvent) => (
     <VStack spacing={5} w="100%">
-      <QRCode w="100%" value={pubkey} />
+      <Box bg="white" p={3}>
+        <QRCode w="100%" value={qrCodeContent} />
+      </Box>
       <Stack
         py={5}
         w="100%"
